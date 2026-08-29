@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🍇 프리미엄 과일 주식 시뮬레이터</title>
-  
+
+  <!-- 브랜드 로고용 디스플레이 폰트 + 가격/타이머용 모노스페이스 폰트 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Chart.js 라이브러리 추가 -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link rel="stylesheet" href="style.css">
 </head>
@@ -18,6 +16,9 @@
 
   <div class="app-shell">
 
+    <!-- ============================================
+         상단 바: 로고 + 오늘이 며칠째인지 뱃지
+    ============================================ -->
     <header class="top-bar">
       <div class="brand">
         <p class="brand-eyebrow">PREMIUM FRUIT EXCHANGE</p>
@@ -29,17 +30,23 @@
       </div>
     </header>
 
+    <!-- ============================================
+         타이머 바: 다음 정산(하루 종료)까지 남은 시간
+    ============================================ -->
     <section class="timer-section">
       <div class="timer-labels">
-        <span>다음 날(뉴스 반영 & 이자 결제)까지</span>
+        <span>다음 정산까지</span>
         <span class="mono" id="timerText">05:00</span>
       </div>
       <div class="timer-track">
         <div class="timer-fill" id="timerFill"></div>
       </div>
-      <p style="font-size: 11px; color: var(--text-dim); margin-top: 5px; text-align: right;">※ 주가는 10초마다 실시간 변동됩니다.</p>
     </section>
 
+    <!-- ============================================
+         오늘의 뉴스 패널 (하루가 바뀔 때마다 갱신되고,
+         토스트처럼 잠깐 뜨는 게 아니라 계속 보여줍니다)
+    ============================================ -->
     <section class="news-panel" id="newsPanel">
       <span class="news-icon">📰</span>
       <div>
@@ -49,10 +56,15 @@
     </section>
 
     <main class="main-grid">
-      <!-- 왼쪽 사이드 컬럼 -->
+
+      <!-- ============================================
+           왼쪽 사이드 컬럼: 내 자산 + 정보상
+      ============================================ -->
       <aside class="side-col">
+
         <div class="panel wallet-panel">
           <h2>💰 내 자산</h2>
+
           <div class="stat-row">
             <span class="stat-label">보유 현금</span>
             <span class="stat-value mono" id="cashValue">0원</span>
@@ -61,64 +73,50 @@
             <span class="stat-label">평가 총자산</span>
             <span class="stat-value mono gold-text" id="totalValue">0원</span>
           </div>
-          <hr class="divider">
-          <h3>보유 종목</h3>
-          <ul class="holdings-list" id="holdingsList"></ul>
-        </div>
 
-        <div class="panel bank-panel">
-          <h2>🏦 대출 은행</h2>
-          <div class="stat-row">
-            <span class="stat-label">대출 잔액 (일이율 5%)</span>
-            <span class="stat-value mono" style="color: var(--up);" id="debtValue">0원</span>
-          </div>
-          <div class="trade-controls" style="margin-top: 10px;">
-            <button class="btn" id="loanBtn" style="flex:1; background: var(--border); color: var(--text-main);">100만원 빌리기</button>
-            <button class="btn" id="repayBtn" style="flex:1; background: var(--border); color: var(--text-main);">전액 상환</button>
-          </div>
+          <hr class="divider">
+
+          <h3>보유 종목</h3>
+          <ul class="holdings-list" id="holdingsList">
+            <!-- script.js가 자동 생성 -->
+          </ul>
         </div>
 
         <div class="panel informant-panel">
           <h2>🕵️ 어둠의 정보상</h2>
-          <p class="informant-desc">돈을 내면 다음 날 터질 뉴스의 힌트를 드립니다.</p>
+          <p class="informant-desc">
+            돈을 내면 오늘 밤 터질 뉴스에 대한 흐릿한 힌트를 얻을 수 있다는 소문이...
+          </p>
           <p class="hint-text" id="hintText">"아직 정보를 사지 않았어요..."</p>
-          <button class="btn hint-btn" id="hintBtn">정보 구매 (5,000원)</button>
+          <button class="btn hint-btn" id="hintBtn">정보 구매 (500원)</button>
         </div>
 
-        <div class="panel shop-panel">
-          <h2>💎 부동산 & 사치품</h2>
-          <ul class="holdings-list" id="shopList"></ul>
-        </div>
       </aside>
 
-      <!-- 오른쪽 메인 컬럼 -->
-      <section class="main-col">
-        <div class="panel chart-panel">
-          <h2>📊 실시간 차트</h2>
-          <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
-            <canvas id="priceChart"></canvas>
-          </div>
-        </div>
-
-        <div class="panel table-panel" style="margin-top: 20px;">
-          <h2>📈 주식 거래</h2>
-          <div class="table-scroll">
-            <table class="stock-table">
-              <thead>
-                <tr>
-                  <th>종목</th>
-                  <th>구분</th>
-                  <th>현재가</th>
-                  <th>등락</th>
-                  <th>보유</th>
-                  <th>거래</th>
-                </tr>
-              </thead>
-              <tbody id="stockTableBody"></tbody>
-            </table>
-          </div>
+      <!-- ============================================
+           오른쪽: 실시간 시세판 (표 형태의 HTS 스타일)
+      ============================================ -->
+      <section class="panel table-panel">
+        <h2>📈 실시간 시세</h2>
+        <div class="table-scroll">
+          <table class="stock-table">
+            <thead>
+              <tr>
+                <th>종목</th>
+                <th>구분</th>
+                <th>현재가</th>
+                <th>등락</th>
+                <th>보유</th>
+                <th>거래</th>
+              </tr>
+            </thead>
+            <tbody id="stockTableBody">
+              <!-- script.js가 fruits 배열을 기반으로 6개 행을 자동 생성 -->
+            </tbody>
+          </table>
         </div>
       </section>
+
     </main>
 
     <footer class="app-footer">
@@ -128,9 +126,7 @@
 
   </div>
 
-  <!-- 업적 토스트 알림 컨테이너 -->
-  <div id="toastContainer" class="toast-container"></div>
-
+  <!-- JS는 항상 body 맨 아래에서 불러옵니다 (DOM이 먼저 준비되어야 하므로) -->
   <script src="script.js"></script>
 </body>
 </html>
