@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍏 과일 주식 시뮬레이터</title>
+
+  <!-- 가격 숫자에 쓸 모노스페이스 폰트 (전광판 느낌) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================================
+       상단 티커 테이프
+       실제 증권거래소 전광판처럼 시세가 옆으로
+       계속 흘러가는 장식용 UI (스크롤 애니메이션은 CSS가 담당)
+  ============================================ -->
+  <div class="ticker-wrap">
+    <div class="ticker" id="tickerTrack">
+      <!-- script.js가 실행되면서 이 안을 자동으로 채웁니다 -->
+    </div>
+  </div>
+
+  <!-- ============================================
+       뉴스 알림 배너
+       평소엔 화면 위로 숨어있다가, 이벤트 발생 시
+       슬라이드로 내려오고 몇 초 뒤 자동으로 다시 숨습니다
+  ============================================ -->
+  <div class="news-banner" id="newsBanner">
+    <span class="news-icon">📰</span>
+    <span id="newsText">시장이 잠잠하네요...</span>
+  </div>
+
+  <header class="app-header">
+    <h1>🍏 과일 주식 시뮬레이터</h1>
+    <p class="subtitle">사과 · 바나나 · 두리안, 당신의 선택은?</p>
+  </header>
+
+  <main class="dashboard">
+
+    <!-- ============================================
+         왼쪽: 내 자산(지갑) 패널
+    ============================================ -->
+    <section class="panel wallet-panel">
+      <h2>💰 내 지갑</h2>
+
+      <div class="stat-row">
+        <span class="stat-label">보유 현금</span>
+        <span class="stat-value mono" id="cashValue">0원</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="stat-label">총 자산 (현금+주식)</span>
+        <span class="stat-value mono" id="totalValue">0원</span>
+      </div>
+
+      <hr class="divider">
+
+      <h3>📦 보유 현황</h3>
+      <ul class="holdings-list" id="holdingsList">
+        <!-- script.js가 fruits 배열을 기반으로 자동 생성 -->
+      </ul>
+
+      <hr class="divider">
+
+      <div class="next-turn-box">
+        <span class="stat-label">다음 시세 변동까지</span>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         오른쪽: 실시간 시세판 (과일 카드들)
+    ============================================ -->
+    <section class="market-panel" id="marketPanel">
+      <!-- script.js가 fruits 배열을 기반으로 카드 3개를 자동 생성 -->
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>Vanilla JS로 만든 미니 게임 · 새로고침하면 처음부터 다시 시작해요</p>
+  </footer>
+
+  <!-- JS 파일은 항상 body 맨 아래에서 불러옵니다.
+       (HTML 요소들이 브라우저에 다 그려진 "이후"에 스크립트를 실행시키기 위함이에요.
+       파이썬처럼 위에서 아래로 순서대로 실행되는 건 똑같지만,
+       화면(DOM)이 준비되기 전에 script.js가 document.getElementById(...) 를
+       호출하면 요소를 못 찾아서 에러가 나기 때문에 순서가 중요합니다.) -->
+  <script src="script.js"></script>
+</body>
+</html>

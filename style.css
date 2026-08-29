@@ -1,0 +1,272 @@
+/* ============================================
+   0. 디자인 토큰 (색상 / 폰트 변수)
+   CSS 변수는 파이썬의 전역 상수(CONST = ...)와 비슷한 역할이에요.
+   한 번 정의해두면 :root 아래 어디서든 var(--이름)으로 재사용합니다.
+============================================ */
+:root {
+  --bg: #12141c;            /* 전체 배경 - 어두운 전광판 느낌 */
+  --panel-bg: #1b1e2b;      /* 패널/카드 배경 */
+  --card-bg: #20232f;       /* 과일 카드 배경 (패널보다 살짝 밝게) */
+  --border: #2b2f40;
+  --text-main: #eef0f7;
+  --text-dim: #8b90a8;
+
+  --gold: #f2b134;          /* 포인트 컬러 (버튼, 뉴스 배너) */
+  --gold-dark: #c98f1c;
+
+  --up: #ef4444;            /* 상승 = 빨간색 */
+  --down: #3b82f6;          /* 하락 = 파란색 */
+
+  --radius: 14px;
+  --mono: 'JetBrains Mono', 'Consolas', monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+}
+
+/* ============================================
+   1. 기본 리셋
+============================================ */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: var(--sans);
+  line-height: 1.5;
+}
+
+.mono { font-family: var(--mono); }
+
+/* ============================================
+   2. 상단 티커 테이프
+============================================ */
+.ticker-wrap {
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 10px 0;
+}
+
+.ticker {
+  display: inline-flex;
+  gap: 48px;
+  padding-left: 100%;
+  /* 22초 동안 왼쪽으로 -50% 만큼 이동 → 내용을 2번 반복해서 넣으면
+     이어붙인 부분이 안 보이고 끊김 없이 도는 것처럼 보입니다. */
+  animation: marquee 22s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-item { color: var(--text-dim); font-size: 14px; }
+.ticker-item .mono { margin-left: 6px; color: var(--text-main); font-weight: 600; }
+.ticker-item.up .mono   { color: var(--up); }
+.ticker-item.down .mono { color: var(--down); }
+
+/* ============================================
+   3. 뉴스 배너 (평소엔 위로 숨김 → 이벤트 시 슬라이드 다운)
+============================================ */
+.news-banner {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -130%);
+  transition: transform .4s cubic-bezier(.2, .8, .2, 1);
+  background: var(--gold);
+  color: #1a1200;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: 0 0 12px 12px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 90vw;
+}
+
+.news-banner.visible { transform: translate(-50%, 0); }
+
+/* ============================================
+   4. 헤더
+============================================ */
+.app-header {
+  text-align: center;
+  padding: 32px 16px 8px;
+}
+.app-header h1 { margin: 0 0 4px; font-size: 28px; }
+.subtitle { margin: 0; color: var(--text-dim); font-size: 14px; }
+
+/* ============================================
+   5. 대시보드 레이아웃
+============================================ */
+.dashboard {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 20px;
+}
+
+@media (max-width: 800px) {
+  .dashboard { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  height: fit-content;
+}
+.panel h2 { margin-top: 0; font-size: 18px; }
+.panel h3 { font-size: 14px; color: var(--text-dim); margin: 16px 0 8px; }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.stat-label { color: var(--text-dim); font-size: 13px; }
+.stat-value { font-size: 16px; font-weight: 700; }
+
+/* ============================================
+   6. 보유 현황 리스트
+============================================ */
+.holdings-list { list-style: none; margin: 0; padding: 0; }
+.holding-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom: 1px dashed var(--border);
+}
+.holding-row:last-child { border-bottom: none; }
+
+/* ============================================
+   7. 다음 턴까지 진행 바
+============================================ */
+.progress-track {
+  margin-top: 8px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--gold);
+}
+
+/* ============================================
+   8. 시세판 (과일 카드 그리드)
+============================================ */
+.market-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+
+.fruit-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-top h3 { margin: 0; font-size: 17px; }
+
+.vol-tag {
+  font-size: 11px;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.price {
+  font-size: 30px;
+  font-weight: 800;
+  margin: 14px 0 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* 가격이 바뀔 때 잠깐 배경이 번쩍이는 효과 (상승=빨강 / 하락=파랑) */
+@keyframes flashUp   { from { background-color: rgba(239, 68, 68, .35); } to { background-color: transparent; } }
+@keyframes flashDown { from { background-color: rgba(59, 130, 246, .35); } to { background-color: transparent; } }
+.price.flash-up   { animation: flashUp 900ms ease-out; }
+.price.flash-down { animation: flashDown 900ms ease-out; }
+
+.badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+}
+.badge-up   { color: var(--up);   background: rgba(239, 68, 68, .12); }
+.badge-down { color: var(--down); background: rgba(59, 130, 246, .12); }
+.badge-flat { color: var(--text-dim); background: rgba(255,255,255,.06); }
+
+/* ============================================
+   9. 매수/매도 컨트롤
+============================================ */
+.trade-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.qty-input {
+  width: 54px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-main);
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: opacity .15s;
+}
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+.btn:not(:disabled):hover { opacity: .85; }
+
+.buy-btn  { background: var(--up); color: #fff; }
+.sell-btn { background: var(--down); color: #fff; }
+
+/* ============================================
+   10. 푸터
+============================================ */
+.app-footer {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 12px;
+  padding: 24px;
+}
