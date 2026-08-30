@@ -184,7 +184,7 @@ const SHOP_ITEMS = [
 /* =====================================================================
    상수 정의
 ===================================================================== */
-const START_CASH = 1000;
+const START_CASH = 100000;
 const DAY_DURATION_MS = 3 * 60 * 1000;    // 3분
 const PRICE_TICK_MS = 10 * 1000;          // 10초
 const TICKS_PER_DAY = DAY_DURATION_MS / PRICE_TICK_MS; // 18
