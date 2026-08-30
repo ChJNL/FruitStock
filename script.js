@@ -1,103 +1,113 @@
 /* =====================================================================
-   확장 기능이 적용된 주식 모의투자 시뮬레이터
+   🍓 과일 테마 주식 모의투자 시뮬레이터
    -----------------------------------------------------------------
-   추가 기능:
-   1. 시작 자본금 100,000원
-   2. 개별 주식 차트 (클릭 시 단독 표시)
-   3. 부도/상장폐지 시스템 (100원 이하 경고, 0원 폐지)
-   4. 튜토리얼 모달 (처음 1회)
+   모든 기능 포함:
+   1. 100,000원 시작
+   2. 개별 주식 차트 (빨강/파랑)
+   3. 부도/상장폐지 시스템
+   4. 튜토리얼 팝업
+   5. 과일/디저트 테마 종목
+   6. 최적화된 컴팩트 UI
 ===================================================================== */
 
 /* =====================================================================
-   종목 목록
+   종목 목록 (과일/디저트 테마)
 ===================================================================== */
 const stocks = [
   {
-    id: 'taesung-elec', ticker: 'TSEC', emoji: '📱', name: '태성전자',
+    id: 'apple-mango', ticker: 'AMNG', emoji: '🍎', name: '애플망고',
     category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#c7c9d1',
     price: 45000, prevPrice: 45000, dayStartPrice: 45000,
     tickVolatility: 0.008, dailyDrift: 0.004, todayTickDrift: 0,
-    tags: ['it'], delisted: false,
+    tags: ['tech'], delisted: false,
     priceHistory: [45000],
   },
   {
-    id: 'nexttech', ticker: 'NEXT', emoji: '💻', name: '넥스트테크',
-    category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#4ecb8f',
+    id: 'strawberry-soft', ticker: 'STRB', emoji: '🍓', name: '딸기소프트',
+    category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#e0668f',
     price: 38000, prevPrice: 38000, dayStartPrice: 38000,
     tickVolatility: 0.010, dailyDrift: 0.005, todayTickDrift: 0,
-    tags: ['it', 'growth'], delisted: false,
+    tags: ['tech', 'growth'], delisted: false,
     priceHistory: [38000],
   },
   {
-    id: 'nextbio', ticker: 'NBIO', emoji: '🧬', name: '넥스트바이오랩',
-    category: '성장주', badgeClass: 'badge-growth', chartColor: '#e0668f',
+    id: 'durian-bio', ticker: 'DURB', emoji: '🦔', name: '두리안바이오',
+    category: '성장주', badgeClass: 'badge-growth', chartColor: '#f2994a',
     price: 28000, prevPrice: 28000, dayStartPrice: 28000,
     tickVolatility: 0.025, dailyDrift: 0, todayTickDrift: 0,
     tags: ['biotech'], delisted: false,
     priceHistory: [28000],
   },
   {
-    id: 'healthmed', ticker: 'HLMD', emoji: '💊', name: '헬스메드',
-    category: '성장주', badgeClass: 'badge-growth', chartColor: '#f2994a',
+    id: 'mango-tex', ticker: 'MGTX', emoji: '🥭', name: '망고텍스',
+    category: '성장주', badgeClass: 'badge-growth', chartColor: '#ffd700',
     price: 22000, prevPrice: 22000, dayStartPrice: 22000,
     tickVolatility: 0.018, dailyDrift: 0.002, todayTickDrift: 0,
-    tags: ['biotech', 'healthcare'], delisted: false,
+    tags: ['tech'], delisted: false,
     priceHistory: [22000],
   },
   {
-    id: 'globalbank', ticker: 'GBNK', emoji: '🏦', name: '글로벌은행',
+    id: 'cherry-health', ticker: 'CHRY', emoji: '🍒', name: '체리헬스',
     category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#9b6fd1',
     price: 32000, prevPrice: 32000, dayStartPrice: 32000,
     tickVolatility: 0.006, dailyDrift: 0.003, todayTickDrift: 0,
-    tags: ['finance'], delisted: false,
+    tags: ['healthcare'], delisted: false,
     priceHistory: [32000],
   },
   {
-    id: 'shimsecurities', ticker: 'SHIM', emoji: '📈', name: '신용증권',
+    id: 'blueberry-tech', ticker: 'BLUB', emoji: '🫐', name: '블루베리테크',
     category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#4a9aa4',
     price: 25000, prevPrice: 25000, dayStartPrice: 25000,
     tickVolatility: 0.010, dailyDrift: 0, todayTickDrift: 0,
-    tags: ['finance'], delisted: false,
+    tags: ['tech'], delisted: false,
     priceHistory: [25000],
   },
   {
-    id: 'daedongindu', ticker: 'DAEI', emoji: '🏗️', name: '대동산업',
+    id: 'grape-dream', ticker: 'GRDM', emoji: '🍇', name: '포도드림',
     category: '가치주', badgeClass: 'badge-value', chartColor: '#e5c76b',
     price: 18000, prevPrice: 18000, dayStartPrice: 18000,
     tickVolatility: 0.015, dailyDrift: 0, todayTickDrift: 0,
-    tags: ['manufacturing'], delisted: false,
+    tags: ['entertainment'], delisted: false,
     priceHistory: [18000],
   },
   {
-    id: 'steelfuture', ticker: 'STFL', emoji: '⚙️', name: '강철미래',
-    category: '가치주', badgeClass: 'badge-value', chartColor: '#b0e0e6',
+    id: 'kiwi-wood', ticker: 'KIWI', emoji: '🥝', name: '키위우드',
+    category: '가치주', badgeClass: 'badge-value', chartColor: '#90ee90',
     price: 16000, prevPrice: 16000, dayStartPrice: 16000,
     tickVolatility: 0.020, dailyDrift: -0.002, todayTickDrift: 0,
     tags: ['manufacturing'], delisted: false,
     priceHistory: [16000],
   },
   {
-    id: 'agrifood', ticker: 'AGRF', emoji: '🌾', name: '농산식품',
-    category: '배당주', badgeClass: 'badge-value', chartColor: '#90ee90',
+    id: 'orange-food', ticker: 'ORNG', emoji: '🍊', name: '귤푸드',
+    category: '배당주', badgeClass: 'badge-value', chartColor: '#b0e0e6',
     price: 14000, prevPrice: 14000, dayStartPrice: 14000,
     tickVolatility: 0.012, dailyDrift: 0.003, todayTickDrift: 0,
     tags: ['food', 'dividend'], delisted: false,
     priceHistory: [14000],
   },
   {
-    id: 'snackworld', ticker: 'SNCK', emoji: '🍪', name: '스낵월드',
-    category: '배당주', badgeClass: 'badge-value', chartColor: '#ffd700',
+    id: 'watermelon-ent', ticker: 'WMNT', emoji: '🍉', name: '수박엔터',
+    category: '배당주', badgeClass: 'badge-value', chartColor: '#4ecb8f',
     price: 20000, prevPrice: 20000, dayStartPrice: 20000,
     tickVolatility: 0.014, dailyDrift: 0.002, todayTickDrift: 0,
-    tags: ['food', 'dividend'], delisted: false,
+    tags: ['entertainment', 'dividend'], delisted: false,
     priceHistory: [20000],
   },
   {
-    id: 'mediahub', ticker: 'MHUB', emoji: '🎬', name: '미디어허브',
-    category: '성장주', badgeClass: 'badge-growth', chartColor: '#ff69b4',
+    id: 'mandarin-finance', ticker: 'MNDF', emoji: '🍊', name: '귤파이낸스',
+    category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#ff69b4',
+    price: 35000, prevPrice: 35000, dayStartPrice: 35000,
+    tickVolatility: 0.007, dailyDrift: 0.002, todayTickDrift: 0,
+    tags: ['finance'], delisted: false,
+    priceHistory: [35000],
+  },
+  {
+    id: 'mangosteen-fund', ticker: 'MSGF', emoji: '🍃', name: '망고스틴펀드',
+    category: '성장주', badgeClass: 'badge-growth', chartColor: '#a0e0a0',
     price: 19000, prevPrice: 19000, dayStartPrice: 19000,
     tickVolatility: 0.022, dailyDrift: 0, todayTickDrift: 0,
-    tags: ['entertainment'], delisted: false,
+    tags: ['finance'], delisted: false,
     priceHistory: [19000],
   },
 ];
@@ -110,25 +120,25 @@ const NEWS_POOL = [
     changeRange: [0.05, 0.12] },
   { id: 'market-crash', type: 'market', text: '📉 금리 인상 우려, 전 종목 약세',
     changeRange: [-0.12, -0.05] },
-  { id: 'it-boom', type: 'tag', tag: 'it', text: '💻 AI 산업 호황, IT주 급등',
+  { id: 'tech-boom', type: 'tag', tag: 'tech', text: '💻 AI 산업 호황, 테크주 급등',
     changeRange: [0.08, 0.18] },
-  { id: 'it-slowdown', type: 'tag', tag: 'it', text: '💻 반도체 수급 악화, IT주 조정',
+  { id: 'tech-slowdown', type: 'tag', tag: 'tech', text: '💻 반도체 수급 악화, 테크주 조정',
     changeRange: [-0.10, -0.03] },
   { id: 'biotech-approval', type: 'tag', tag: 'biotech', text: '🧬 신약 임상 성공, 바이오 폭등',
     changeRange: [0.15, 0.35] },
-  { id: 'biotech-scandal', type: 'tag', tag: 'biotech', text: '🧬 임상 부작용 발생, 바이오 급락',
+  { id: 'biotech-scandal', type: 'tag', tag: 'biotech', text: '🧬 임상 부작용, 바이오 급락',
     changeRange: [-0.25, -0.08] },
-  { id: 'finance-rally', type: 'tag', tag: 'finance', text: '🏦 금리 인상, 금융주 수혜',
-    changeRange: [0.06, 0.15] },
+  { id: 'healthcare-boom', type: 'tag', tag: 'healthcare', text: '🏥 의료 개혁법 시행, 헬스주 강세',
+    changeRange: [0.08, 0.15] },
   { id: 'food-inflation', type: 'tag', tag: 'food', text: '🌾 농산물 가격 상승, 식품주 강세',
     changeRange: [0.04, 0.12] },
-  { id: 'manufacturing-recovery', type: 'tag', tag: 'manufacturing', text: '⚙️ 수출 호조, 제조업 강세',
-    changeRange: [0.06, 0.14] },
   { id: 'entertainment-hit', type: 'tag', tag: 'entertainment', text: '🎬 영화 대박, 엔터주 급등',
     changeRange: [0.10, 0.25] },
-  { id: 'nextbio-jackpot', type: 'stock', targetId: 'nextbio', text: '🚀 넥스트바이오, 신약 승인! 주가 폭등',
+  { id: 'finance-rally', type: 'tag', tag: 'finance', text: '🏦 금리 인상, 금융주 수혜',
+    changeRange: [0.06, 0.15] },
+  { id: 'durian-jackpot', type: 'stock', targetId: 'durian-bio', text: '🚀 두리안바이오, 신약 승인! 주가 폭등',
     changeRange: [2.0, 6.0] },
-  { id: 'taesung-scandal', type: 'stock', targetId: 'taesung-elec', text: '📰 태성전자, 부실 회계 의혹',
+  { id: 'strawberry-scandal', type: 'stock', targetId: 'strawberry-soft', text: '📰 딸기소프트, 보안 사고 발생',
     changeRange: [-0.15, -0.05] },
 ];
 
@@ -142,7 +152,7 @@ const ACHIEVEMENTS = [
     check: (s) => s.everSold },
   { id: 'millionaire', emoji: '👑', name: '천만 자산가', desc: '순자산이 1천만 원을 넘었다',
     check: (s) => s.totalAssets >= 10000000 },
-  { id: 'trader', emoji: '💎', name: '활동적인 투자자', desc: '한 종목을 10회 이상 거래했다',
+  { id: 'trader', emoji: '💎', name: '활동적 투자자', desc: '한 종목을 10회 이상 거래했다',
     check: (s) => s.tradeCount >= 10 },
   { id: 'survivor-5', emoji: '📅', name: '1주일 생존', desc: '5일 동안 시장에서 살아남았다',
     check: (s) => s.dayCount >= 5 },
@@ -164,15 +174,15 @@ const SHOP_ITEMS = [
 /* =====================================================================
    상수 정의
 ===================================================================== */
-const START_CASH = 100000;                // 10만원으로 변경
+const START_CASH = 100000;
 const DAY_DURATION_MS = 3 * 60 * 1000;
 const PRICE_TICK_MS = 10 * 1000;
 const TICKS_PER_DAY = DAY_DURATION_MS / PRICE_TICK_MS;
 const HINT_COST = 100;
 const DIVIDEND_RATE = 0.02;
 const DAILY_PRICE_LIMIT = 0.30;
-const BANKRUPT_THRESHOLD = 100;           // 부도 경고 기준 (100원)
-const DELISTING_PRICE = 0;                // 상장폐지 기준 (0원)
+const BANKRUPT_THRESHOLD = 100;
+const DELISTING_PRICE = 0;
 const SAVE_KEY = 'stockSimulatorSave';
 const TUTORIAL_SHOWN_KEY = 'tutorialShown';
 
@@ -200,8 +210,8 @@ let tickIndexToday = 0;
 let lastPriceTickElapsed = 0;
 let priceChart = null;
 let newsModalShown = false;
-let selectedStockId = null;      // 선택된 종목 ID
-let bankruptcyWarnings = {};     // 부도 경고 상태 추적
+let selectedStockId = null;
+let bankruptcyWarnings = {};
 
 /* =====================================================================
    DOM 요소
@@ -215,7 +225,7 @@ const dom = {
   holdingsList: document.getElementById('holdingsList'),
   hintText: document.getElementById('hintText'),
   hintBtn: document.getElementById('hintBtn'),
-  stockTableBody: document.getElementById('stockTableBody'),
+  marketContainer: document.getElementById('marketContainer'),
   shopGrid: document.getElementById('shopGrid'),
   achvGrid: document.getElementById('achvGrid'),
   toast: document.getElementById('toast'),
@@ -358,12 +368,12 @@ function resetGame() {
 }
 
 /* =====================================================================
-   튜토리얼 관련
+   튜토리얼
 ===================================================================== */
 
 function checkAndShowTutorial() {
   if (localStorage.getItem(TUTORIAL_SHOWN_KEY)) {
-    return; // 이미 본 경우
+    return;
   }
   dom.tutorialModal.classList.add('visible');
 }
@@ -397,66 +407,82 @@ function renderWallet() {
 }
 
 function renderMarket() {
-  dom.stockTableBody.innerHTML = stocks
-    .filter((stock) => !stock.delisted)  // 상장폐지된 종목 제외
-    .map((stock) => {
-      const diff = stock.price - stock.prevPrice;
-      const ratio = stock.prevPrice ? diff / stock.prevPrice : 0;
-
-      const isUp = diff > 0;
-      const isDown = diff < 0;
-      const isBankrupt = stock.price <= BANKRUPT_THRESHOLD;
-
-      let flashClass = '';
-      let changeClass = '';
-      let arrow = '-';
-
-      if (isBankrupt) {
-        flashClass = 'flash-danger';
-        changeClass = 'change-danger';
-        arrow = '💀';
-      } else {
-        flashClass = isUp ? 'flash-up' : isDown ? 'flash-down' : '';
-        changeClass = isUp ? 'change-up' : isDown ? 'change-down' : 'change-flat';
-        arrow = isUp ? '▲' : isDown ? '▼' : '-';
-      }
-
-      const canBuy = player.cash >= stock.price && !isBankrupt;
-      const canSell = player.holdings[stock.id] > 0;
-
-      return `
+  // 테이블 마크업 생성
+  const tableHTML = `
+    <table class="stock-table">
+      <thead>
         <tr>
-          <td>
-            <div class="stock-name-cell" data-stock-id="${stock.id}">
-              <span class="stock-emoji">${stock.emoji}</span>
-              <div>
-                <div class="stock-name">${stock.name}</div>
-                <div class="stock-ticker mono">${stock.ticker}</div>
-              </div>
-            </div>
-          </td>
-          <td>
-            <span class="badge ${isBankrupt ? 'badge-delisted' : stock.badgeClass}">
-              ${isBankrupt ? '⚠️ 부도' : stock.category}
-            </span>
-          </td>
-          <td class="mono price-cell ${flashClass}">${stock.price.toLocaleString()}원</td>
-          <td>
-            <span class="change-badge ${changeClass}">
-              ${arrow} ${isBankrupt ? '위험' : formatPercent(ratio)}
-            </span>
-          </td>
-          <td class="mono">${player.holdings[stock.id]}주</td>
-          <td>
-            <div class="trade-controls">
-              <input type="number" class="qty-input mono" id="qty-${stock.id}" value="1" min="1">
-              <button class="btn buy-btn" data-action="buy" data-id="${stock.id}" ${canBuy ? '' : 'disabled'}>매수</button>
-              <button class="btn sell-btn" data-action="sell" data-id="${stock.id}" ${canSell ? '' : 'disabled'}>매도</button>
-            </div>
-          </td>
+          <th>종목</th>
+          <th>구분</th>
+          <th>현재가</th>
+          <th>등락</th>
+          <th>보유</th>
+          <th>거래</th>
         </tr>
-      `;
-    }).join('');
+      </thead>
+      <tbody>
+        ${stocks
+          .filter((stock) => !stock.delisted)
+          .map((stock) => {
+            const diff = stock.price - stock.prevPrice;
+            const ratio = stock.prevPrice ? diff / stock.prevPrice : 0;
+
+            const isUp = diff > 0;
+            const isDown = diff < 0;
+            const isBankrupt = stock.price <= BANKRUPT_THRESHOLD;
+
+            let flashClass = '';
+            let changeClass = '';
+            let arrow = '-';
+
+            if (isBankrupt) {
+              flashClass = 'flash-danger';
+              changeClass = 'change-danger';
+              arrow = '💀';
+            } else {
+              flashClass = isUp ? 'flash-up' : isDown ? 'flash-down' : '';
+              changeClass = isUp ? 'change-up' : isDown ? 'change-down' : 'change-flat';
+              arrow = isUp ? '▲' : isDown ? '▼' : '-';
+            }
+
+            const canBuy = player.cash >= stock.price && !isBankrupt;
+            const canSell = player.holdings[stock.id] > 0;
+
+            return `
+              <tr>
+                <td>
+                  <div class="stock-name-cell" data-stock-id="${stock.id}">
+                    <span class="stock-emoji">${stock.emoji}</span>
+                    <div>
+                      <div class="stock-name">${stock.name}</div>
+                      <div class="stock-ticker mono">${stock.ticker}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge ${isBankrupt ? 'badge-delisted' : stock.badgeClass}">${isBankrupt ? '⚠️부도' : stock.category}</span></td>
+                <td class="mono price-cell ${flashClass}">${stock.price.toLocaleString()}원</td>
+                <td>
+                  <span class="change-badge ${changeClass}">
+                    ${arrow} ${isBankrupt ? '위험' : formatPercent(ratio)}
+                  </span>
+                </td>
+                <td class="mono">${player.holdings[stock.id]}주</td>
+                <td>
+                  <div class="trade-controls">
+                    <input type="number" class="qty-input mono" id="qty-${stock.id}" value="1" min="1">
+                    <button class="btn buy-btn" data-action="buy" data-id="${stock.id}" ${canBuy ? '' : 'disabled'}>매수</button>
+                    <button class="btn sell-btn" data-action="sell" data-id="${stock.id}" ${canSell ? '' : 'disabled'}>매도</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          })
+          .join('')}
+      </tbody>
+    </table>
+  `;
+
+  dom.marketContainer.innerHTML = tableHTML;
 }
 
 function renderShop() {
@@ -512,7 +538,6 @@ function renderAll() {
 ===================================================================== */
 
 function initChart() {
-  // 초기화 시 아무것도 선택되지 않은 상태
   selectedStockId = null;
   dom.chartWrap.style.display = 'none';
   dom.chartInfo.style.display = 'block';
@@ -537,7 +562,7 @@ function updateChartDisplay() {
   dom.chartWrap.style.display = 'block';
 
   const isUp = stock.price > stock.dayStartPrice;
-  const lineColor = isUp ? '#e0483e' : '#4f83cc';  // 빨강 / 파랑
+  const lineColor = isUp ? '#e0483e' : '#4f83cc';
 
   if (!priceChart) {
     const ctx = dom.priceChart.getContext('2d');
@@ -547,7 +572,7 @@ function updateChartDisplay() {
         labels: [],
         datasets: [
           {
-            label: `${stock.name} (${isUp ? '상승' : '하락'})`,
+            label: `${stock.emoji} ${stock.name}`,
             data: [],
             borderColor: lineColor,
             backgroundColor: 'transparent',
@@ -564,33 +589,32 @@ function updateChartDisplay() {
         animation: false,
         scales: {
           x: {
-            ticks: { color: '#8b8f9e', maxRotation: 0 },
+            ticks: { color: '#8b8f9e', maxRotation: 0, font: { size: 10 } },
             grid: { color: 'rgba(255,255,255,0.04)' },
           },
           y: {
             ticks: {
               color: '#8b8f9e',
-              callback: (v) => `${v}원`,
+              callback: (v) => `${v.toLocaleString()}원`,
+              font: { size: 10 },
             },
             grid: { color: 'rgba(255,255,255,0.04)' },
           },
         },
         plugins: {
           legend: {
-            labels: { color: '#c7c9d1', boxWidth: 12, font: { size: 12 } },
+            labels: { color: '#c7c9d1', boxWidth: 10, font: { size: 11 } },
           },
         },
       },
     });
   }
 
-  // 기존 데이터 초기화
   priceChart.data.labels = [];
   priceChart.data.datasets[0].data = [];
   priceChart.data.datasets[0].borderColor = lineColor;
-  priceChart.data.datasets[0].label = `${stock.name} (${isUp ? '상승 추세' : '하락 추세'})`;
+  priceChart.data.datasets[0].label = `${stock.emoji} ${stock.name} (${isUp ? '상승 추세 📈' : '하락 추세 📉'})`;
 
-  // 새로운 데이터 입력
   stock.priceHistory.forEach((price, index) => {
     priceChart.data.labels.push(`${index * 10}s`);
     priceChart.data.datasets[0].data.push(price);
@@ -779,7 +803,7 @@ function closeNewsModal() {
 }
 
 /* =====================================================================
-   부도 & 상장폐지 관리
+   부도 & 상장폐지
 ===================================================================== */
 
 function checkBankruptcy(stock) {
@@ -788,14 +812,13 @@ function checkBankruptcy(stock) {
 
   if (isBankrupt && !wasWarned) {
     bankruptcyWarnings[stock.id] = true;
-    queueToast(`⚠️ <strong>${stock.name}</strong> 부도 경고! 주가 100원 이하로 추락했습니다.`);
+    queueToast(`⚠️ <strong>${stock.emoji} ${stock.name}</strong> 부도 경고! 주가 100원 이하`);
   }
 
-  // 0원 도달 시 상장폐지
   if (stock.price <= DELISTING_PRICE && !stock.delisted) {
     stock.delisted = true;
     delete player.holdings[stock.id];
-    queueToast(`💀 <strong>${stock.name}</strong> 상장폐지! 모든 주식이 휴지조각이 되었습니다.`);
+    queueToast(`💀 <strong>${stock.emoji} ${stock.name}</strong> 상장폐지!`);
   }
 }
 
@@ -822,15 +845,12 @@ function runPriceTick() {
 
     stock.prevPrice = stock.price;
 
-    // 틱당 변동률 계산
     const noise = randomFloat(-stock.tickVolatility, stock.tickVolatility);
     const baselineDrift = stock.dailyDrift / TICKS_PER_DAY;
     const changeRatio = noise + baselineDrift + stock.todayTickDrift;
 
-    // 가격 업데이트
     let newPrice = Math.max(1, Math.round(stock.price * (1 + changeRatio)));
 
-    // 일일 상한선 리미트 적용 (±30%)
     const maxPrice = Math.round(stock.dayStartPrice * 1.30);
     const minPrice = Math.round(stock.dayStartPrice * 0.70);
     newPrice = Math.max(minPrice, Math.min(maxPrice, newPrice));
@@ -838,7 +858,6 @@ function runPriceTick() {
     stock.price = newPrice;
     stock.priceHistory.push(newPrice);
 
-    // 부도 체크
     checkBankruptcy(stock);
   });
 
@@ -857,24 +876,21 @@ function updateTimerDisplay(remainingMs) {
 }
 
 function resolveDayEnd() {
-  // 배당금 지급
   stocks.forEach((stock) => {
     if (!stock.delisted && stock.tags.includes('dividend')) {
       const qty = player.holdings[stock.id];
       if (qty > 0) {
         const dividend = Math.round(qty * stock.price * DIVIDEND_RATE);
         player.cash += dividend;
-        queueToast(`${stock.emoji} ${stock.name} 배당금 ${formatWon(dividend)} 지급!`);
+        queueToast(`${stock.emoji} ${stock.name} 배당금 ${formatWon(dividend)}`);
       }
     }
   });
 
-  // 다음 날 뉴스 설정
   todaysNews = tomorrowsNews;
   tomorrowsNews = pickRandomNews();
   applyTodaysNewsTrend(todaysNews);
 
-  // 차트 & 날짜 리셋
   stocks.forEach((s) => {
     if (!s.delisted) {
       s.dayStartPrice = s.price;
@@ -934,7 +950,7 @@ function init() {
 
   renderAll();
 
-  dom.stockTableBody.addEventListener('click', (e) => {
+  dom.marketContainer.addEventListener('click', (e) => {
     handleStockNameClick(e);
     handleMarketClick(e);
   });
