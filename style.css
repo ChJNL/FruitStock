@@ -1,5 +1,5 @@
 /* ============================================
-   디자인 토큰 (기본 폰트 크기 확대 유지)
+   디자인 토큰
 ============================================ */
 :root {
   --bg: #0b0d12;
@@ -27,8 +27,8 @@
   --brand-font: 'Sora', var(--sans);
 }
 
-* { 
-  box-sizing: border-box; 
+* {
+  box-sizing: border-box;
 }
 
 html, body {
@@ -37,22 +37,22 @@ html, body {
   background: var(--bg);
   color: var(--text-main);
   font-family: var(--sans);
-  font-size: 16px; 
+  font-size: 16px;
   line-height: 1.5;
   height: 100%;
-  overflow: hidden; /* 앱처럼 동작하게 기본 스크롤 차단 (모바일은 미디어쿼리에서 풂) */
+  overflow: hidden;
 }
 
-.mono { 
-  font-family: var(--mono); 
+.mono {
+  font-family: var(--mono);
 }
 
-.gold-text { 
-  color: var(--gold); 
+.gold-text {
+  color: var(--gold);
 }
 
 /* ============================================
-   토스트 알림 
+   토스트 알림
 ============================================ */
 .toast {
   position: fixed;
@@ -72,8 +72,8 @@ html, body {
   text-align: center;
 }
 
-.toast.visible { 
-  transform: translate(-50%, 0); 
+.toast.visible {
+  transform: translate(-50%, 0);
 }
 
 /* ============================================
@@ -92,8 +92,8 @@ html, body {
   z-index: 250;
 }
 
-.news-modal.visible { 
-  display: flex; 
+.news-modal.visible {
+  display: flex;
 }
 
 .news-modal-content {
@@ -108,38 +108,44 @@ html, body {
   animation: slideIn 0.3s ease-out;
 }
 
-.news-modal-icon { 
-  font-size: 56px; 
-  margin-bottom: 16px; 
+.news-modal-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
 }
 
-.news-modal-content h2 { 
-  color: var(--gold); 
-  font-size: 26px; 
-  margin: 0 0 16px; 
+.news-modal-content h2 {
+  color: var(--gold);
+  font-size: 26px;
+  margin: 0 0 16px;
 }
 
-.news-modal-text { 
-  font-size: 17px; 
-  color: var(--text-main); 
-  margin: 0 0 24px; 
-  line-height: 1.6; 
+.news-modal-text {
+  font-size: 17px;
+  color: var(--text-main);
+  margin: 0 0 24px;
+  line-height: 1.6;
 }
 
-.news-close-btn { 
-  background: var(--gold); 
-  color: #1a1200; 
-  padding: 14px 36px; 
-  font-size: 16px; 
-  font-weight: 700; 
-  border: none; 
-  border-radius: 8px; 
-  cursor: pointer; 
+.news-close-btn {
+  background: var(--gold);
+  color: #1a1200;
+  padding: 14px 36px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 @keyframes slideIn {
-  from { transform: scale(0.9) translateY(-20px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
+  from {
+    transform: scale(0.9) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ============================================
@@ -158,8 +164,8 @@ html, body {
   z-index: 500;
 }
 
-.phone-modal.visible { 
-  display: flex; 
+.phone-modal.visible {
+  display: flex;
 }
 
 .phone-frame {
@@ -175,232 +181,232 @@ html, body {
   position: relative;
 }
 
-.phone-header { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  padding: 28px 20px 12px; 
-  background: rgba(26,26,46,0.9); 
-  font-size: 15px; 
-  border-bottom: 1px solid var(--border); 
+.phone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 20px 12px;
+  background: rgba(26, 26, 46, 0.9);
+  font-size: 15px;
+  border-bottom: 1px solid var(--border);
 }
 
-.phone-time { 
-  font-weight: 700; 
+.phone-time {
+  font-weight: 700;
 }
 
-.phone-close-btn { 
-  background: none; 
-  border: none; 
-  color: var(--text-main); 
-  font-size: 20px; 
-  cursor: pointer; 
+.phone-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-main);
+  font-size: 20px;
+  cursor: pointer;
 }
 
-.phone-content { 
-  flex: 1; 
-  overflow-y: auto; 
-  padding: 16px; 
-  background: var(--bg); 
+.phone-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--bg);
 }
 
-.phone-home { 
-  display: grid; 
-  grid-template-columns: repeat(2, 1fr); 
-  gap: 16px; 
+.phone-home {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
 }
 
-.phone-app-icon { 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  gap: 10px; 
-  padding: 24px; 
-  background: var(--panel-bg); 
-  border: 1px solid var(--border); 
-  border-radius: 16px; 
-  cursor: pointer; 
+.phone-app-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
 }
 
-.app-emoji { 
-  font-size: 42px; 
+.app-emoji {
+  font-size: 42px;
 }
 
-.app-name { 
-  font-size: 13px; 
-  font-weight: 600; 
+.app-name {
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.phone-app-screen { 
-  display: flex; 
-  flex-direction: column; 
-  height: 100%; 
+.phone-app-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.app-header { 
-  padding: 16px 12px; 
-  border-bottom: 1px solid var(--border); 
-  display: flex; 
-  align-items: center; 
-  gap: 12px; 
+.app-header {
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.app-back-btn { 
-  background: none; 
-  border: none; 
-  color: var(--gold); 
-  font-weight: 700; 
-  font-size: 14px; 
-  cursor: pointer; 
+.app-back-btn {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-.app-header h3 { 
-  margin: 0; 
-  font-size: 16px; 
-  flex: 1; 
+.app-header h3 {
+  margin: 0;
+  font-size: 16px;
+  flex: 1;
 }
 
-.app-body { 
-  flex: 1; 
-  overflow-y: auto; 
-  padding: 12px; 
+.app-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
 }
 
-.guide-item { 
-  margin-bottom: 16px; 
-  padding: 14px; 
-  background: var(--row-a); 
-  border-radius: 10px; 
-  border-left: 4px solid var(--gold); 
+.guide-item {
+  margin-bottom: 16px;
+  padding: 14px;
+  background: var(--row-a);
+  border-radius: 10px;
+  border-left: 4px solid var(--gold);
 }
 
-.guide-item h4 { 
-  margin: 0 0 6px; 
-  font-size: 14px; 
-  color: var(--gold); 
+.guide-item h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--gold);
 }
 
-.guide-item p { 
-  margin: 0; 
-  font-size: 13px; 
-  color: var(--text-main); 
+.guide-item p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-main);
 }
 
-.phone-achv-grid, 
-.phone-shop-grid { 
-  display: grid; 
-  grid-template-columns: repeat(2, 1fr); 
-  gap: 12px; 
+.phone-achv-grid,
+.phone-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
-.phone-achv-item, 
-.phone-shop-item { 
-  background: var(--row-a); 
-  border: 1px solid var(--border); 
-  border-radius: 12px; 
-  padding: 12px; 
-  text-align: center; 
+.phone-achv-item,
+.phone-shop-item {
+  background: var(--row-a);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
 }
 
-.achv-emoji, 
-.shop-emoji { 
-  font-size: 28px; 
-  display: block; 
-  margin-bottom: 6px; 
+.achv-emoji,
+.shop-emoji {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 6px;
 }
 
-.achv-name, 
-.shop-name { 
-  font-size: 13px; 
-  font-weight: 700; 
+.achv-name,
+.shop-name {
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.achv-desc, 
-.shop-price { 
-  font-size: 11px; 
-  color: var(--text-dim); 
+.achv-desc,
+.shop-price {
+  font-size: 11px;
+  color: var(--text-dim);
 }
 
-.buy-shop-btn, 
-.hint-btn, 
-.reset-btn { 
-  width: 100%; 
-  padding: 10px; 
-  border-radius: 6px; 
-  font-size: 13px; 
-  font-weight: 700; 
-  cursor: pointer; 
-  margin-top: 6px; 
+.buy-shop-btn,
+.hint-btn,
+.reset-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
 }
 
-.buy-shop-btn, 
-.hint-btn { 
-  background: var(--gold-soft); 
-  color: var(--gold); 
-  border: 1px solid var(--gold); 
+.buy-shop-btn,
+.hint-btn {
+  background: var(--gold-soft);
+  color: var(--gold);
+  border: 1px solid var(--gold);
 }
 
-.reset-btn { 
-  background: rgba(224, 72, 62, 0.2); 
-  color: #e0483e; 
-  border: 1px solid #e0483e; 
+.reset-btn {
+  background: rgba(224, 72, 62, 0.2);
+  color: #e0483e;
+  border: 1px solid #e0483e;
 }
 
-.owned-tag { 
-  font-size: 11px; 
-  color: var(--gold); 
-  font-weight: 700; 
+.owned-tag {
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 700;
 }
 
-.info-section { 
-  padding: 14px; 
-  background: var(--row-a); 
-  border-radius: 10px; 
-  margin-bottom: 16px; 
+.info-section {
+  padding: 14px;
+  background: var(--row-a);
+  border-radius: 10px;
+  margin-bottom: 16px;
 }
 
-.info-row { 
-  display: flex; 
-  justify-content: space-between; 
-  font-size: 14px; 
-  margin-bottom: 8px; 
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
 }
 
-.holdings-list { 
-  list-style: none; 
-  margin: 0; 
-  padding: 0; 
+.holdings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.holdings-item { 
-  display: flex; 
-  justify-content: space-between; 
-  padding: 6px 0; 
-  font-size: 13px; 
-  border-bottom: 1px dashed var(--border); 
+.holdings-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px dashed var(--border);
 }
 
-.hint-text { 
-  font-family: var(--mono); 
-  font-size: 12px; 
-  color: var(--silver); 
-  background: rgba(255, 255, 255, 0.03); 
-  padding: 10px; 
-  border-radius: 6px; 
-  margin-bottom: 8px; 
+.hint-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--silver);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
 }
 
-.phone-footer { 
-  height: 24px; 
-  background: #000; 
-  padding: 6px 12px; 
+.phone-footer {
+  height: 24px;
+  background: #000;
+  padding: 6px 12px;
 }
 
-.battery-bar { 
-  width: 100%; 
-  height: 4px; 
-  background: linear-gradient(90deg, var(--gold) 80%, var(--down) 100%); 
-  border-radius: 2px; 
+.battery-bar {
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--gold) 80%, var(--down) 100%);
+  border-radius: 2px;
 }
 
 /* ============================================
@@ -409,8 +415,8 @@ html, body {
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* 구형 브라우저 호환용 */
-  height: 100dvh; /* 모바일 주소창을 고려한 동적 높이 (핵심 해결책) */
+  height: 100vh;
+  height: 100dvh; /* 모바일 전용 Dynamic Viewport Height */
   background: var(--bg);
 }
 
@@ -423,10 +429,10 @@ html, body {
   border-bottom: 1px solid var(--border);
 }
 
-.app-title { 
-  margin: 0; 
-  font-size: 24px; 
-  font-weight: 700; 
+.app-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .phone-button {
@@ -449,29 +455,29 @@ html, body {
   border-bottom: 1px solid var(--border);
 }
 
-.timer-info { 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  font-size: 15px; 
-  white-space: nowrap; 
+.timer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  white-space: nowrap;
 }
 
-.day-label { 
-  font-size: 13px; 
-  color: var(--gold); 
-  font-weight: 700; 
+.day-label {
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 700;
 }
 
-.day-number { 
-  font-size: 18px; 
-  font-weight: 700; 
+.day-number {
+  font-size: 18px;
+  font-weight: 700;
 }
 
-.timer-text { 
-  font-size: 16px; 
-  font-weight: 700; 
-  color: var(--gold); 
+.timer-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold);
 }
 
 .news-ticker {
@@ -484,41 +490,41 @@ html, body {
   overflow: hidden;
 }
 
-.news-emoji { 
-  font-size: 18px; 
+.news-emoji {
+  font-size: 18px;
 }
 
-.news-title { 
-  font-weight: 600; 
-  color: var(--text-main); 
-  white-space: nowrap; 
+.news-title {
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
 }
 
-.news-brief { 
-  color: var(--gold); 
-  font-weight: 600; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  white-space: nowrap; 
+.news-brief {
+  color: var(--gold);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.timer-track-container { 
-  width: 100%; 
-  height: 6px; 
-  background: var(--panel-bg); 
-  border: none; 
-  overflow: hidden; 
+.timer-track-container {
+  width: 100%;
+  height: 6px;
+  background: var(--panel-bg);
+  border: none;
+  overflow: hidden;
 }
 
-.timer-fill { 
-  height: 100%; 
-  width: 100%; 
-  background: linear-gradient(90deg, var(--gold), #f5d67a); 
-  transition: width 1s linear; 
+.timer-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--gold), #f5d67a);
+  transition: width 1s linear;
 }
 
 /* ============================================
-   메인 거래 영역 (데스크탑 기준)
+   메인 거래 영역 (PC/데스크탑)
 ============================================ */
 .trading-area {
   display: grid;
@@ -526,10 +532,10 @@ html, body {
   gap: 20px;
   flex: 1;
   padding: 20px 24px;
-  overflow: hidden; /* 데스크탑에서는 패널별로 스크롤 허용 */
+  overflow: hidden;
 }
 
-.left-panel, 
+.left-panel,
 .right-panel {
   display: flex;
   flex-direction: column;
@@ -538,77 +544,77 @@ html, body {
 }
 
 /* 자산 카드 */
-.asset-info-card { 
-  background: var(--panel-bg); 
-  border: 1px solid var(--border); 
-  border-radius: var(--radius); 
-  padding: 20px; 
-  border-left: 5px solid var(--gold); 
+.asset-info-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  border-left: 5px solid var(--gold);
 }
 
-.asset-info-card h3 { 
-  margin: 0 0 16px; 
-  font-size: 18px; 
+.asset-info-card h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
 }
 
-.asset-info-card h4 { 
-  margin: 16px 0 10px; 
-  font-size: 14px; 
-  color: var(--gold); 
+.asset-info-card h4 {
+  margin: 16px 0 10px;
+  font-size: 14px;
+  color: var(--gold);
 }
 
-.asset-row { 
-  display: flex; 
-  justify-content: space-between; 
-  margin-bottom: 12px; 
-  font-size: 15px; 
+.asset-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 15px;
 }
 
-.asset-value { 
-  font-size: 18px; 
-  font-weight: 700; 
+.asset-value {
+  font-size: 18px;
+  font-weight: 700;
 }
 
-.asset-divider { 
-  border: none; 
-  border-top: 1px solid var(--border); 
-  margin: 14px 0; 
+.asset-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 14px 0;
 }
 
-.holdings-mini { 
-  list-style: none; 
-  margin: 0; 
-  padding: 0; 
-  max-height: 150px; 
-  overflow-y: auto; 
-  font-size: 14px; 
+.holdings-mini {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 14px;
 }
 
-.holdings-mini-item { 
-  display: flex; 
-  justify-content: space-between; 
-  padding: 8px 0; 
-  border-bottom: 1px dashed var(--border); 
+.holdings-mini-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
 }
 
-.holdings-empty-mini { 
-  text-align: center; 
-  color: var(--text-dim); 
-  font-size: 13px; 
-  padding: 10px 0; 
+.holdings-empty-mini {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+  padding: 10px 0;
 }
 
 /* 주식 리스트 */
-.market-list-wrapper { 
-  flex: 1; 
-  display: flex; 
-  flex-direction: column; 
-  min-height: 0; 
+.market-list-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.section-header h2 { 
-  margin: 0 0 12px; 
-  font-size: 16px; 
+.section-header h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
 }
 
 .market-list {
@@ -620,13 +626,13 @@ html, body {
   padding-right: 8px;
 }
 
-.market-list::-webkit-scrollbar { 
-  width: 8px; 
+.market-list::-webkit-scrollbar {
+  width: 8px;
 }
 
-.market-list::-webkit-scrollbar-thumb { 
-  background: var(--border); 
-  border-radius: 4px; 
+.market-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
 }
 
 /* 주식 카드 아이템 */
@@ -643,193 +649,209 @@ html, body {
   transition: all 0.2s;
 }
 
-.market-item:hover { 
-  background: var(--row-a); 
-  border-color: var(--gold-soft); 
+.market-item:hover {
+  background: var(--row-a);
+  border-color: var(--gold-soft);
 }
 
-.market-item.selected { 
-  background: rgba(212, 175, 55, 0.12); 
-  border-color: var(--gold); 
+.market-item.selected {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: var(--gold);
 }
 
-.market-item.delisted { 
-  opacity: 0.4; 
-  pointer-events: none; 
+.market-item.delisted {
+  opacity: 0.4;
+  pointer-events: none;
 }
 
-.item-name-section { 
-  display: flex; 
-  align-items: center; 
-  gap: 14px; 
-  min-width: 0; 
+.item-name-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
 }
 
-.item-emoji { 
-  font-size: 32px; 
-  flex-shrink: 0; 
+.item-emoji {
+  font-size: 32px;
+  flex-shrink: 0;
 }
 
-.item-name-text { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 4px; 
-  min-width: 0; 
+.item-name-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
-.item-name { 
-  font-size: 16px; 
-  font-weight: 700; 
-  color: var(--text-main); 
+.item-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
-.item-ticker { 
-  font-size: 12px; 
-  color: var(--text-dim); 
-  font-family: var(--mono); 
+.item-ticker {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: var(--mono);
 }
 
-.item-price { 
-  font-size: 16px; 
-  font-weight: 700; 
-  font-family: var(--mono); 
-  text-align: right; 
+.item-price {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--mono);
+  text-align: right;
 }
 
-.item-change { 
-  font-size: 14px; 
-  font-weight: 700; 
-  padding: 6px 10px; 
-  border-radius: 6px; 
-  text-align: center; 
+.item-change {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-align: center;
 }
 
-.item-change.up { 
-  color: var(--up); 
-  background: var(--up-soft); 
+.item-change.up {
+  color: var(--up);
+  background: var(--up-soft);
 }
 
-.item-change.down { 
-  color: var(--down); 
-  background: var(--down-soft); 
+.item-change.down {
+  color: var(--down);
+  background: var(--down-soft);
 }
 
-.item-change.danger { 
-  color: #e0483e; 
-  background: rgba(200, 50, 50, 0.2); 
+.item-change.danger {
+  color: #e0483e;
+  background: rgba(200, 50, 50, 0.2);
 }
 
-.item-controls { 
-  display: flex; 
-  gap: 8px; 
-  justify-content: flex-end; 
-  align-items: center; 
+.item-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
 }
 
-.qty-input { 
-  width: 55px; 
-  height: 38px; 
-  background: var(--bg); 
-  border: 1px solid var(--border); 
-  border-radius: 6px; 
-  color: var(--text-main); 
-  text-align: center; 
-  font-weight: 700; 
-  font-size: 14px; 
+.qty-input {
+  width: 55px;
+  height: 38px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-main);
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
 }
 
-.btn { 
-  border: none; 
-  border-radius: 6px; 
-  padding: 0 14px; 
-  height: 38px; 
-  font-weight: 700; 
-  font-size: 14px; 
-  cursor: pointer; 
-  display: inline-flex; 
-  align-items: center; 
-  justify-content: center; 
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0 14px;
+  height: 38px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn:disabled { 
-  opacity: 0.35; 
-  cursor: not-allowed; 
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
-.btn-buy { 
-  background: var(--up); 
-  color: #fff; 
+.btn-buy {
+  background: var(--up);
+  color: #fff;
 }
 
-.btn-sell { 
-  background: var(--down); 
-  color: #fff; 
+.btn-sell {
+  background: var(--down);
+  color: #fff;
 }
 
 /* 차트 */
-.chart-container { 
-  flex: 1; 
-  background: var(--panel-bg); 
-  border: 1px solid var(--border); 
-  border-radius: var(--radius); 
-  padding: 16px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  min-height: 320px; 
+.chart-container {
+  flex: 1;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
 }
 
-.chart-placeholder { 
-  text-align: center; 
-  color: var(--text-dim); 
-  font-size: 14px; 
+.chart-placeholder {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 14px;
 }
 
-.chart-wrap { 
-  width: 100%; 
-  height: 100%; 
-  position: relative; 
+.chart-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
-canvas { 
-  max-height: 100%; 
+canvas {
+  max-height: 100%;
 }
 
 /* 애니메이션 */
-@keyframes flashUp { 
-  from { background-color: rgba(224, 72, 62, 0.35); } 
-  to { background-color: transparent; } 
+@keyframes flashUp {
+  from {
+    background-color: rgba(224, 72, 62, 0.35);
+  }
+  to {
+    background-color: transparent;
+  }
 }
 
-@keyframes flashDown { 
-  from { background-color: rgba(79, 131, 204, 0.35); } 
-  to { background-color: transparent; } 
+@keyframes flashDown {
+  from {
+    background-color: rgba(79, 131, 204, 0.35);
+  }
+  to {
+    background-color: transparent;
+  }
 }
 
-.flash-up { 
-  animation: flashUp 1s ease-out; 
+.flash-up {
+  animation: flashUp 1s ease-out;
 }
 
-.flash-down { 
-  animation: flashDown 1s ease-out; 
+.flash-down {
+  animation: flashDown 1s ease-out;
 }
 
 /* ============================================
-   📱 모바일 완벽 대응 (해상도 768px 이하)
+   📱 모바일 대응 (화면 가려짐 및 잘림 전면 수정)
 ============================================ */
 @media (max-width: 768px) {
-  
-  .top-header { 
-    padding: 12px 16px; 
+  html, body {
+    overflow-y: auto; /* 모바일에서 전체 페이지 스크롤 활성화 */
   }
-  
-  .app-title { 
-    font-size: 20px; 
+
+  .app-container {
+    height: auto;
+    min-height: 100dvh;
   }
-  
-  .phone-button { 
-    padding: 8px 14px; 
-    font-size: 20px; 
+
+  .top-header {
+    padding: 12px 16px;
+  }
+
+  .app-title {
+    font-size: 20px;
+  }
+
+  .phone-button {
+    padding: 8px 14px;
+    font-size: 20px;
   }
 
   .timer-news-bar {
@@ -838,36 +860,35 @@ canvas {
     align-items: flex-start;
     gap: 10px;
   }
-  
-  .news-ticker { 
-    width: 100%; 
+
+  .news-ticker {
+    width: 100%;
   }
 
-  /* 핵심 수정: 메인 영역이 통째로 스크롤 되도록 변경하여 절대 안 잘림 */
+  /* 모바일 거래 영역 전체 스크롤 처리 */
   .trading-area {
     display: flex;
     flex-direction: column;
-    overflow-y: auto;          /* 리스트 내부 스크롤이 아닌, 전체 창 스크롤 활성화 */
-    -webkit-overflow-scrolling: touch;
+    overflow-y: visible;
     padding: 16px;
     gap: 20px;
-    padding-bottom: 60px;      /* 맨 밑 아이템이 화면 끝에 바싹 붙지 않게 여백 추가 */
+    padding-bottom: 80px; /* 맨 아래 아이템이 안 가려지도록 안전 여백 확보 */
   }
 
-  .left-panel, 
-  .right-panel, 
+  .left-panel,
+  .right-panel,
   .market-list-wrapper {
-    flex: none;                /* 자식 요소들의 높이 강제 축소 방지 */
+    flex: none;
     min-height: 0;
   }
 
   .market-list {
     flex: none;
-    overflow: visible;         /* 리스트 내부는 스크롤 하지 않고 끝까지 쫙 펴짐 */
+    overflow: visible;
     padding-right: 0;
   }
 
-  /* 모바일용 주식 리스트 디자인 (터치하기 좋게 크고 시원하게) */
+  /* 모바일 가독성 향상 카드 레이아웃 */
   .market-item {
     display: grid;
     grid-template-columns: auto 1fr auto;
