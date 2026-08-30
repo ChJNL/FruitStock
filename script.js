@@ -2,100 +2,74 @@
    프리미엄 과일 주식 시뮬레이터 - script.js
    -----------------------------------------------------------------
    전체 흐름:
-   ① 데이터 정의(회사 목록, 뉴스 풀) → ② 게임 상태 변수 → ③ 화면 요소 참조
+   ① 데이터 정의(회사/뉴스/업적/상점) → ② 게임 상태 변수 → ③ 화면 요소 참조
    → ④ 유틸 함수 → ⑤ 저장/불러오기(localStorage) → ⑥ 렌더링 함수
-   → ⑦ 거래 로직 → ⑧ 정보상(힌트) 로직 → ⑨ 하루 진행/타이머 로직
-   → ⑩ 초기화
+   → ⑦ 매수/매도 → ⑧ 은행(대출) → ⑨ 정보상(힌트) → ⑩ 상점 → ⑪ 업적/토스트
+   → ⑫ 차트(Chart.js) → ⑬ 하루 진행 & 10초 시세 틱 → ⑭ 초기화
 ===================================================================== */
 
 
 /* =====================================================================
    ① 과일 회사 목록
    -----------------------------------------------------------------
-   파이썬으로 치면 list of dict 입니다.
-     fruits = [{"id": "apple-electronics", "price": 50000, ...}, ...]
-
-   각 회사에는 category(구분 뱃지)와 tags(어떤 종류의 뉴스에 반응하는지)가
-   있어요. tags는 파이썬의 리스트(list of string)와 완전히 같은 개념이고,
-   나중에 "이 뉴스가 이 회사에 영향을 주는가?"를 판단할 때 씁니다.
+   파이썬으로 치면 list of dict 입니다. tags는 "이 회사가 어떤 종류의
+   뉴스에 반응하는가"를 나타내는 리스트예요.
+   tickVolatility는 "10초 틱 한 번마다" 기본으로 얼마나 흔들리는지,
+   dailyDrift는 "하루 전체에 걸쳐" 은근히 깔리는 방향성(우상향/우하향)입니다.
 ===================================================================== */
 const fruits = [
   {
-    id: 'apple-electronics',
-    ticker: 'APPL',
-    emoji: '🍎',
-    name: '애플전자',
-    category: '우량주',
-    badgeClass: 'badge-blue-chip',
-    price: 50000,
-    prevPrice: 50000,
-    volatility: 0.02,   // 하루 기본 변동폭 ±2%
-    drift: 0.005,       // 매일 평균 +0.5% 우상향 편향
+    id: 'apple-electronics', ticker: 'APPL', emoji: '🍎', name: '애플전자',
+    category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#c7c9d1',
+    price: 50000, prevPrice: 50000, dayStartPrice: 50000,
+    tickVolatility: 0.004,  // 틱당 ±0.4%
+    dailyDrift: 0.006,      // 하루 전체 평균 +0.6% 우상향
+    todayTickDrift: 0,      // 오늘의 뉴스가 만든 틱당 추가 추세 (게임 중 계산됨)
     tags: ['blue-chip'],
   },
   {
-    id: 'delmonte-banana',
-    ticker: 'DELB',
-    emoji: '🍌',
-    name: '델몬트바나나',
-    category: '우량주',
-    badgeClass: 'badge-blue-chip',
-    price: 30000,
-    prevPrice: 30000,
-    volatility: 0.03,
-    drift: 0.003,
+    id: 'delmonte-banana', ticker: 'DELB', emoji: '🍌', name: '델몬트바나나',
+    category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#e5c76b',
+    price: 30000, prevPrice: 30000, dayStartPrice: 30000,
+    tickVolatility: 0.006,
+    dailyDrift: 0.003,
+    todayTickDrift: 0,
     tags: ['dividend'],
   },
   {
-    id: 'jeju-citrus-air',
-    ticker: 'JCIT',
-    emoji: '🍊',
-    name: '제주감귤항공',
-    category: '가치주',
-    badgeClass: 'badge-value',
-    price: 20000,
-    prevPrice: 20000,
-    volatility: 0.06,
-    drift: 0,
-    tags: ['weather'],   // 날씨/계절 뉴스에 민감
+    id: 'jeju-citrus-air', ticker: 'JCIT', emoji: '🍊', name: '제주감귤항공',
+    category: '가치주', badgeClass: 'badge-value', chartColor: '#f2994a',
+    price: 20000, prevPrice: 20000, dayStartPrice: 20000,
+    tickVolatility: 0.012,
+    dailyDrift: 0,
+    todayTickDrift: 0,
+    tags: ['weather'],
   },
   {
-    id: 'shine-muscat-luxury',
-    ticker: 'SMLX',
-    emoji: '🍇',
-    name: '샤인머스캣럭셔리',
-    category: '가치주',
-    badgeClass: 'badge-value',
-    price: 25000,
-    prevPrice: 25000,
-    volatility: 0.07,
-    drift: 0,
-    tags: ['trend'],     // 유행/트렌드 뉴스에 민감
+    id: 'shine-muscat-luxury', ticker: 'SMLX', emoji: '🍇', name: '샤인머스캣럭셔리',
+    category: '가치주', badgeClass: 'badge-value', chartColor: '#9b6fd1',
+    price: 25000, prevPrice: 25000, dayStartPrice: 25000,
+    tickVolatility: 0.014,
+    dailyDrift: 0,
+    todayTickDrift: 0,
+    tags: ['trend'],
   },
   {
-    id: 'watermelon-entertainment',
-    ticker: 'WMEN',
-    emoji: '🍉',
-    name: '수박엔터테인먼트',
-    category: '테마주',
-    badgeClass: 'badge-theme',
-    price: 15000,
-    prevPrice: 15000,
-    volatility: 0.15,
-    drift: 0,
+    id: 'watermelon-entertainment', ticker: 'WMEN', emoji: '🍉', name: '수박엔터테인먼트',
+    category: '테마주', badgeClass: 'badge-theme', chartColor: '#4ecb8f',
+    price: 15000, prevPrice: 15000, dayStartPrice: 15000,
+    tickVolatility: 0.025,
+    dailyDrift: 0,
+    todayTickDrift: 0,
     tags: ['entertainment'],
   },
   {
-    id: 'durian-bio',
-    ticker: 'DURB',
-    emoji: '🦔', // 두리안 이모지가 따로 없어 뾰족한 고슴도치로 대신했어요
-    name: '두리안바이오',
-    category: '작전주',
-    badgeClass: 'badge-manipulated',
-    price: 8000,
-    prevPrice: 8000,
-    volatility: 0.35,   // 매우 큰 변동폭
-    drift: -0.01,       // 장기적으로는 살짝 우하향 (전형적인 작전주 특성)
+    id: 'durian-bio', ticker: 'DURB', emoji: '🦔', name: '두리안바이오',
+    category: '작전주', badgeClass: 'badge-manipulated', chartColor: '#e0668f',
+    price: 8000, prevPrice: 8000, dayStartPrice: 8000,
+    tickVolatility: 0.05,   // 틱당 ±5% - 매우 큼
+    dailyDrift: -0.005,
+    todayTickDrift: 0,
     tags: ['biotech'],
   },
 ];
@@ -104,137 +78,112 @@ const fruits = [
 /* =====================================================================
    뉴스 이벤트 풀
    -----------------------------------------------------------------
-   type: 'market'(전체 시장) / 'tag'(특정 태그를 가진 회사들) / 'stock'(특정 회사 하나)
-   changeRange: [최소, 최대] 등락률 (예: [0.03, 0.08] = +3%~+8%)
-   hint: 정보상이 알려주는 흐릿한 힌트 문구
+   changeRange는 이제 "그날 하루 전체에 걸쳐 누적으로 만들고 싶은 목표
+   등락률"이에요. 하루가 시작될 때 이 범위 안에서 딱 한 번 목표치를
+   뽑고, 그걸 하루의 틱 개수(30번)로 잘게 나눠서 매 10초마다 조금씩
+   반영합니다. (자세한 계산은 ⑬번 섹션 applyTodaysNewsTrend 참고)
 ===================================================================== */
 const NEWS_POOL = [
-  {
-    id: 'market-boom',
-    type: 'market',
-    text: '🌍 글로벌 경기 훈풍, 전 종목 동반 강세',
-    hint: '시장 전체에 훈훈한 바람이 불 거란 소문이 있어요...',
-    changeRange: [0.03, 0.08],
-  },
-  {
-    id: 'market-crash',
-    type: 'market',
-    text: '📉 금리 인상 발표, 전 종목 동반 약세',
-    hint: '시장에 서늘한 바람이 불 거란 소문이 있어요...',
-    changeRange: [-0.08, -0.03],
-  },
-  {
-    id: 'citrus-frost',
-    type: 'tag',
-    tag: 'weather',
-    text: '❄️ 이상 한파로 감귤 작황 피해 우려',
-    hint: '날씨 관련 종목에 안 좋은 소식이 있을 거란 소문이...',
-    changeRange: [-0.15, -0.05],
-  },
-  {
-    id: 'citrus-boom',
-    type: 'tag',
-    tag: 'weather',
-    text: '☀️ 역대급 풍년, 감귤 생산량 최고치 경신',
-    hint: '날씨 관련 종목에 좋은 소식이 있을 거란 소문이...',
-    changeRange: [0.05, 0.15],
-  },
-  {
-    id: 'muscat-trend',
-    type: 'tag',
-    tag: 'trend',
-    text: '🍇 SNS 챌린지 열풍, 트렌드 관련주 급등',
-    hint: 'SNS에서 뭔가 유행할 조짐이 있다는 소문이...',
-    changeRange: [0.1, 0.25],
-  },
-  {
-    id: 'muscat-fade',
-    type: 'tag',
-    tag: 'trend',
-    text: '📉 유행이 시들해지며 트렌드 관련주 조정',
-    hint: '한창 잘나가던 유행이 식을 거란 소문이...',
-    changeRange: [-0.12, -0.04],
-  },
-  {
-    id: 'watermelon-hit',
-    type: 'stock',
-    targetId: 'watermelon-entertainment',
-    text: '🎬 수박 엔터, 신작 흥행 대박',
-    hint: '수박 쪽에서 아주 신나는 소식이 있을 거란 소문이...',
-    changeRange: [0.15, 0.4],
-  },
-  {
-    id: 'watermelon-scandal',
-    type: 'stock',
-    targetId: 'watermelon-entertainment',
-    text: '📰 주연 배우 논란 확산, 수박 엔터 이미지 타격',
-    hint: '수박 쪽에서 시끄러운 잡음이 들릴 거란 소문이...',
-    changeRange: [-0.3, -0.1],
-  },
-  {
-    id: 'apple-earnings',
-    type: 'stock',
-    targetId: 'apple-electronics',
-    text: '🍎 애플전자, 역대 최대 분기 실적 발표',
-    hint: '가장 안전한 종목에서 반가운 소식이 있을 거란 소문이...',
-    changeRange: [0.02, 0.05],
-  },
-  {
-    id: 'banana-dividend',
-    type: 'stock',
-    targetId: 'delmonte-banana',
-    text: '🍌 델몬트바나나, 깜짝 배당 발표',
-    hint: '꾸준한 종목에서 보너스 같은 소식이 있을 거란 소문이...',
-    changeRange: [0.02, 0.06],
-  },
-  {
-    id: 'durian-jackpot',
-    type: 'stock',
-    targetId: 'durian-bio',
-    text: '🚀 두리안 바이오, 신약 임상 대성공! 주가 폭등',
-    hint: '두리안 쪽에서 아주 달콤한 냄새가 날 거란 소문이...',
-    changeRange: [3.0, 9.0], // +300% ~ +900% (최대 10배)
-  },
-  {
-    id: 'durian-delisting',
-    type: 'stock',
-    targetId: 'durian-bio',
-    text: '💀 두리안 바이오, 회계 부정 정황 포착... 상장폐지 위기',
-    hint: '두리안 쪽에서 아주 끔찍한 냄새가 날 거란 소문이...',
-    changeRange: [-0.95, -0.75],
-  },
+  { id: 'market-boom', type: 'market', text: '🌍 글로벌 경기 훈풍, 전 종목 동반 강세',
+    hint: '시장 전체에 훈훈한 바람이 불 거란 소문이 있어요...', changeRange: [0.03, 0.08] },
+  { id: 'market-crash', type: 'market', text: '📉 금리 인상 발표, 전 종목 동반 약세',
+    hint: '시장에 서늘한 바람이 불 거란 소문이 있어요...', changeRange: [-0.08, -0.03] },
+  { id: 'citrus-frost', type: 'tag', tag: 'weather', text: '❄️ 이상 한파로 감귤 작황 피해 우려',
+    hint: '날씨 관련 종목에 안 좋은 소식이 있을 거란 소문이...', changeRange: [-0.15, -0.05] },
+  { id: 'citrus-boom', type: 'tag', tag: 'weather', text: '☀️ 역대급 풍년, 감귤 생산량 최고치 경신',
+    hint: '날씨 관련 종목에 좋은 소식이 있을 거란 소문이...', changeRange: [0.05, 0.15] },
+  { id: 'muscat-trend', type: 'tag', tag: 'trend', text: '🍇 SNS 챌린지 열풍, 트렌드 관련주 급등',
+    hint: 'SNS에서 뭔가 유행할 조짐이 있다는 소문이...', changeRange: [0.1, 0.25] },
+  { id: 'muscat-fade', type: 'tag', tag: 'trend', text: '📉 유행이 시들해지며 트렌드 관련주 조정',
+    hint: '한창 잘나가던 유행이 식을 거란 소문이...', changeRange: [-0.12, -0.04] },
+  { id: 'watermelon-hit', type: 'stock', targetId: 'watermelon-entertainment', text: '🎬 수박 엔터, 신작 흥행 대박',
+    hint: '수박 쪽에서 아주 신나는 소식이 있을 거란 소문이...', changeRange: [0.15, 0.4] },
+  { id: 'watermelon-scandal', type: 'stock', targetId: 'watermelon-entertainment', text: '📰 주연 배우 논란 확산, 수박 엔터 이미지 타격',
+    hint: '수박 쪽에서 시끄러운 잡음이 들릴 거란 소문이...', changeRange: [-0.3, -0.1] },
+  { id: 'apple-earnings', type: 'stock', targetId: 'apple-electronics', text: '🍎 애플전자, 역대 최대 분기 실적 발표',
+    hint: '가장 안전한 종목에서 반가운 소식이 있을 거란 소문이...', changeRange: [0.02, 0.05] },
+  { id: 'banana-dividend-news', type: 'stock', targetId: 'delmonte-banana', text: '🍌 델몬트바나나, 깜짝 호실적 발표',
+    hint: '꾸준한 종목에서 보너스 같은 소식이 있을 거란 소문이...', changeRange: [0.02, 0.06] },
+  { id: 'durian-jackpot', type: 'stock', targetId: 'durian-bio', text: '🚀 두리안 바이오, 신약 임상 대성공! 주가 폭등',
+    hint: '두리안 쪽에서 아주 달콤한 냄새가 날 거란 소문이...', changeRange: [3.0, 9.0] },
+  { id: 'durian-delisting', type: 'stock', targetId: 'durian-bio', text: '💀 두리안 바이오, 회계 부정 정황 포착... 상장폐지 위기',
+    hint: '두리안 쪽에서 아주 끔찍한 냄새가 날 거란 소문이...', changeRange: [-0.95, -0.75] },
 ];
 
 
 /* =====================================================================
-   ② 게임 상태 변수
+   업적 목록
    -----------------------------------------------------------------
-   player는 파이썬의 dict과 같아요: player = {"cash": 1000000, "holdings": {...}}
-   let로 선언한 변수들은 나중에 재할당(=)이 필요해서 const 대신 let을 씁니다.
-   (const로 선언한 변수는 다른 값을 다시 대입할 수 없어요 - 파이썬엔 없는 개념)
+   check는 "현재 상태를 넣으면 true/false를 돌려주는 함수"예요.
+   파이썬으로 치면 check: lambda s: s['cash'] < 0 같은 형태와 같습니다.
+===================================================================== */
+const ACHIEVEMENTS = [
+  { id: 'first-buy', emoji: '🌱', name: '첫 투자', desc: '생애 첫 주식을 매수했다',
+    check: (s) => s.everBought },
+  { id: 'first-sell', emoji: '💵', name: '첫 수익 실현', desc: '생애 첫 매도를 완료했다',
+    check: (s) => s.everSold },
+  { id: 'bankrupt', emoji: '💀', name: '첫 깡통', desc: '현금이 마이너스가 되었다',
+    check: (s) => s.cash < 0 },
+  { id: 'millionaire-100m', emoji: '👑', name: '자산 1억 달성', desc: '순자산이 1억 원을 넘었다',
+    check: (s) => s.totalAssets >= 100000000 },
+  { id: 'durian-madness', emoji: '🦔', name: '두리안의 냄새', desc: '두리안바이오 주가가 4만 원을 넘었다',
+    check: (s) => s.durianPrice >= 40000 },
+  { id: 'luxury-owner', emoji: '💎', name: '플렉스의 시작', desc: '사치품을 하나 이상 구매했다',
+    check: (s) => s.ownedItemsCount >= 1 },
+  { id: 'collector', emoji: '🏆', name: '모든 걸 가졌다', desc: '상점의 모든 자산을 구매했다',
+    check: (s) => s.ownedItemsCount >= SHOP_ITEMS_COUNT },
+  { id: 'survivor-10', emoji: '📅', name: '베테랑 투자자', desc: '10일 동안 시장에서 살아남았다',
+    check: (s) => s.dayCount >= 10 },
+];
+
+
+/* =====================================================================
+   사치품 상점 목록
+===================================================================== */
+const SHOP_ITEMS = [
+  { id: 'fruit-farm', emoji: '🌾', name: '과일 농장', price: 2000000, desc: '나만의 농장을 소유한다는 뿌듯함' },
+  { id: 'watch', emoji: '⌚', name: '명품 시계', price: 5000000, desc: '손목 위의 자산 증명서' },
+  { id: 'sports-car', emoji: '🏎️', name: '슈퍼카', price: 10000000, desc: '질주 본능을 채워줄 스피드' },
+  { id: 'yacht', emoji: '🛥️', name: '요트', price: 20000000, desc: '주말은 바다 위에서' },
+  { id: 'penthouse', emoji: '🏙️', name: '펜트하우스', price: 50000000, desc: '도시 전체가 내려다보이는 집' },
+];
+const SHOP_ITEMS_COUNT = SHOP_ITEMS.length;
+
+
+/* =====================================================================
+   ② 게임 상태 변수 & 상수
 ===================================================================== */
 const START_CASH = 1000000;
-const DAY_DURATION_MS = 5 * 60 * 1000; // 5분 = 300,000ms
+const DAY_DURATION_MS = 5 * 60 * 1000;  // 5분
+const PRICE_TICK_MS = 10 * 1000;        // 10초
+const TICKS_PER_DAY = DAY_DURATION_MS / PRICE_TICK_MS; // 30
 const HINT_COST = 500;
+const DIVIDEND_RATE = 0.01;    // 델몬트바나나 배당률 (보유가치의 1%)
+const LOAN_INTEREST_RATE = 0.05; // 대출 이자율 (하루 5%)
+const LOAN_MAX = 5000000;
 const SAVE_KEY = 'fruitStockPremiumSave';
 
 const player = {
   cash: START_CASH,
+  loan: 0,
   holdings: {
-    'apple-electronics': 0,
-    'delmonte-banana': 0,
-    'jeju-citrus-air': 0,
-    'shine-muscat-luxury': 0,
-    'watermelon-entertainment': 0,
-    'durian-bio': 0,
+    'apple-electronics': 0, 'delmonte-banana': 0, 'jeju-citrus-air': 0,
+    'shine-muscat-luxury': 0, 'watermelon-entertainment': 0, 'durian-bio': 0,
   },
+  ownedItems: [],           // 구매한 사치품 id 목록 (파이썬의 list와 동일)
+  unlockedAchievements: [], // 달성한 업적 id 목록
+  everBought: false,
+  everSold: false,
 };
 
 let dayCount = 1;
-let dayEndAt = Date.now() + DAY_DURATION_MS; // 오늘이 끝나는 시각(타임스탬프)
+let dayEndAt = Date.now() + DAY_DURATION_MS;
 let hintPurchasedToday = false;
-let todaysNews = pickRandomNews();  // 오늘 하루가 끝날 때 터질 뉴스 (미리 뽑아둠, 아직 비공개)
-let latestNews = null;              // 화면의 "오늘의 뉴스" 패널에 표시할, 이미 터진 뉴스
+let todaysNews = pickRandomNews();     // 오늘 활성화된 뉴스 (화면에 공개됨)
+let tomorrowsNews = pickRandomNews();  // 내일 터질 뉴스 (비공개, 정보상이 힌트만 판매)
+let tickIndexToday = 0;
+let lastPriceTickElapsed = 0;
+let priceChart = null;
 
 
 /* =====================================================================
@@ -248,9 +197,16 @@ const dom = {
   cashValue: document.getElementById('cashValue'),
   totalValue: document.getElementById('totalValue'),
   holdingsList: document.getElementById('holdingsList'),
-  stockTableBody: document.getElementById('stockTableBody'),
+  loanValue: document.getElementById('loanValue'),
+  loanAmount: document.getElementById('loanAmount'),
+  borrowBtn: document.getElementById('borrowBtn'),
+  repayBtn: document.getElementById('repayBtn'),
   hintText: document.getElementById('hintText'),
   hintBtn: document.getElementById('hintBtn'),
+  stockTableBody: document.getElementById('stockTableBody'),
+  shopGrid: document.getElementById('shopGrid'),
+  achvGrid: document.getElementById('achvGrid'),
+  toast: document.getElementById('toast'),
   resetBtn: document.getElementById('resetBtn'),
 };
 
@@ -260,8 +216,6 @@ const dom = {
 ===================================================================== */
 
 function formatWon(amount) {
-  // toLocaleString('ko-KR')은 천 단위 콤마를 자동으로 찍어줍니다.
-  // 파이썬의 f"{amount:,}원" 과 같은 결과예요.
   return `${Math.round(amount).toLocaleString('ko-KR')}원`;
 }
 
@@ -270,17 +224,16 @@ function formatPercent(ratio) {
   return `${sign}${(ratio * 100).toFixed(1)}%`;
 }
 
-// min~max 사이의 "실수"를 하나 뽑습니다. 파이썬의 random.uniform(min, max)와 동일.
+// 파이썬의 random.uniform(min, max)와 동일한 기능
 function randomFloat(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-// 뉴스 풀에서 무작위로 하나 뽑기. 파이썬의 random.choice(NEWS_POOL)과 동일.
+// 파이썬의 random.choice(NEWS_POOL)과 동일한 기능
 function pickRandomNews() {
   return NEWS_POOL[Math.floor(Math.random() * NEWS_POOL.length)];
 }
 
-// 오늘의 뉴스가 특정 과일 회사에 영향을 주는지 판단합니다.
 function newsAffectsFruit(news, fruit) {
   if (news.type === 'market') return true;
   if (news.type === 'tag') return fruit.tags.includes(news.tag);
@@ -292,77 +245,107 @@ function findFruit(fruitId) {
   return fruits.find((f) => f.id === fruitId);
 }
 
+// 현금 + 보유 주식 평가금 - 대출 = 순자산
+function computeTotalAssets() {
+  const stockValue = fruits.reduce((sum, f) => sum + f.price * player.holdings[f.id], 0);
+  return player.cash + stockValue - player.loan;
+}
+
+// 데이터 변경 후 항상 세 가지(화면 갱신, 업적 확인, 저장)를 같이 해줘야 하므로
+// 하나의 함수로 묶어둡니다. 이렇게 하면 buyFruit, sellFruit, borrowLoan 등
+// 곳곳에서 renderAll(); checkAchievements(); saveGame(); 세 줄을 반복해서
+// 적지 않아도 돼요. (파이썬이었다면 그냥 공통 함수로 빼는 것과 같은 이치입니다)
+function commit() {
+  renderAll();
+  checkAchievements();
+  saveGame();
+}
+
 
 /* =====================================================================
    ⑤ 저장 / 불러오기 (localStorage)
    -----------------------------------------------------------------
-   localStorage는 브라우저가 제공하는 아주 단순한 "키-값 저장소"예요.
-   문자열만 저장할 수 있기 때문에, 객체를 저장하려면 먼저 문자열로
-   변환(JSON.stringify)해야 하고, 불러올 때는 다시 객체로 되돌려야
-   (JSON.parse) 합니다.
-
-     파이썬으로 치면:
-       저장: json.dumps(data)  → 파일이나 DB에 문자열로 씀
-       불러오기: json.loads(문자열) → 다시 dict/list로 복원
-
-   localStorage.setItem(키, 값) / localStorage.getItem(키) 는
-   파이썬의 딕셔너리 저장(dict[키] = 값)과 비슷하지만, 브라우저를 껐다
-   켜도(심지어 컴퓨터를 재부팅해도) 데이터가 남아있다는 게 큰 차이예요.
+   localStorage는 문자열만 저장할 수 있는 브라우저 내장 저장소예요.
+     저장: JSON.stringify(객체)  ≈ 파이썬의 json.dumps(dict)
+     불러오기: JSON.parse(문자열) ≈ 파이썬의 json.loads(문자열)
+   주의: 가격 히스토리(차트 데이터)까지 저장하면 용량이 커지고 복잡해지므로,
+   여기서는 "지금 이 순간의 상태"만 저장하고 차트는 새로고침 시 새로
+   그리기 시작하도록 했어요. 자산/보유량/업적처럼 정말 중요한 데이터는
+   전부 보존됩니다.
 ===================================================================== */
 
 function saveGame() {
   const saveData = {
     cash: player.cash,
+    loan: player.loan,
     holdings: player.holdings,
+    ownedItems: player.ownedItems,
+    unlockedAchievements: player.unlockedAchievements,
+    everBought: player.everBought,
+    everSold: player.everSold,
     dayCount,
     dayEndAt,
     hintPurchasedToday,
     todaysNewsId: todaysNews.id,
-    latestNewsId: latestNews ? latestNews.id : null,
-    fruitPrices: fruits.map((f) => ({ id: f.id, price: f.price, prevPrice: f.prevPrice })),
+    tomorrowsNewsId: tomorrowsNews.id,
+    fruits: fruits.map((f) => ({
+      id: f.id, price: f.price, prevPrice: f.prevPrice,
+      dayStartPrice: f.dayStartPrice, todayTickDrift: f.todayTickDrift,
+    })),
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 }
 
 function loadGame() {
   const raw = localStorage.getItem(SAVE_KEY);
-  if (!raw) return false; // 저장된 게 없으면 false를 돌려주고 새 게임으로 시작
+  if (!raw) return false;
 
   const data = JSON.parse(raw);
 
   player.cash = data.cash;
+  player.loan = data.loan;
   player.holdings = data.holdings;
+  player.ownedItems = data.ownedItems;
+  player.unlockedAchievements = data.unlockedAchievements;
+  player.everBought = data.everBought;
+  player.everSold = data.everSold;
+
   dayCount = data.dayCount;
   dayEndAt = data.dayEndAt;
   hintPurchasedToday = data.hintPurchasedToday;
 
-  // 뉴스는 객체 전체를 저장하지 않고 id만 저장해뒀다가,
-  // NEWS_POOL에서 같은 id를 가진 원본 객체를 다시 찾아옵니다.
-  // (NEWS_POOL은 코드에 고정된 값이라 매번 똑같이 생성되기 때문에 가능해요)
+  // 뉴스는 id만 저장해뒀다가 NEWS_POOL에서 같은 id를 다시 찾아옵니다.
   todaysNews = NEWS_POOL.find((n) => n.id === data.todaysNewsId) || pickRandomNews();
-  latestNews = data.latestNewsId ? NEWS_POOL.find((n) => n.id === data.latestNewsId) : null;
+  tomorrowsNews = NEWS_POOL.find((n) => n.id === data.tomorrowsNewsId) || pickRandomNews();
 
-  data.fruitPrices.forEach((saved) => {
+  data.fruits.forEach((saved) => {
     const fruit = findFruit(saved.id);
     if (fruit) {
       fruit.price = saved.price;
       fruit.prevPrice = saved.prevPrice;
+      fruit.dayStartPrice = saved.dayStartPrice;
+      fruit.todayTickDrift = saved.todayTickDrift;
     }
   });
 
-  // 게임을 꺼둔 사이에 이미 하루가 끝나버렸다면, 돌아오자마자 그날을 정산합니다.
   if (Date.now() >= dayEndAt) {
-    resolveDay();
+    // 게임을 꺼둔 사이에 이미 하루가 끝나버렸다면, 돌아오자마자 정산합니다.
+    resolveDayEnd();
+  } else {
+    // 아직 오늘이 진행 중이라면, 남은 시간을 기준으로 "이미 지나간 틱 번호"를
+    // 다시 계산해서 새로고침 직후 시세 틱이 중복 발생하지 않도록 맞춥니다.
+    const elapsed = DAY_DURATION_MS - (dayEndAt - Date.now());
+    lastPriceTickElapsed = Math.floor(elapsed / PRICE_TICK_MS);
   }
 
   return true;
 }
 
 function resetGame() {
-  const ok = confirm('정말 초기화할까요? 모든 자산 기록이 사라져요.');
+  const ok = confirm('정말 초기화할까요? 모든 자산과 업적 기록이 사라져요.');
   if (!ok) return;
   localStorage.removeItem(SAVE_KEY);
-  location.reload(); // 페이지를 새로 불러오면 init()이 처음부터 다시 시작됨
+  location.reload();
 }
 
 
@@ -370,27 +353,27 @@ function resetGame() {
    ⑥ 렌더링(화면 그리기) 함수
 ===================================================================== */
 
+function renderDayBadge() { dom.dayNumber.textContent = dayCount; }
+
+function renderNews() { dom.newsText.textContent = todaysNews.text; }
+
 function renderWallet() {
   dom.cashValue.textContent = formatWon(player.cash);
-
-  const stockValue = fruits.reduce(
-    (sum, fruit) => sum + fruit.price * player.holdings[fruit.id],
-    0,
-  );
-  dom.totalValue.textContent = formatWon(player.cash + stockValue);
+  dom.totalValue.textContent = formatWon(computeTotalAssets());
 
   const owned = fruits.filter((f) => player.holdings[f.id] > 0);
+  dom.holdingsList.innerHTML = owned.length === 0
+    ? '<li class="holding-empty">아직 보유한 종목이 없어요</li>'
+    : owned.map((fruit) => `
+        <li class="holding-row">
+          <span>${fruit.emoji} ${fruit.name}</span>
+          <span class="mono">${player.holdings[fruit.id]}주</span>
+        </li>
+      `).join('');
+}
 
-  if (owned.length === 0) {
-    dom.holdingsList.innerHTML = '<li class="holding-empty">아직 보유한 종목이 없어요</li>';
-  } else {
-    dom.holdingsList.innerHTML = owned.map((fruit) => `
-      <li class="holding-row">
-        <span>${fruit.emoji} ${fruit.name}</span>
-        <span class="mono">${player.holdings[fruit.id]}주</span>
-      </li>
-    `).join('');
-  }
+function renderBank() {
+  dom.loanValue.textContent = formatWon(player.loan);
 }
 
 function renderMarket() {
@@ -406,7 +389,6 @@ function renderMarket() {
 
     const canBuy = player.cash >= fruit.price;
     const canSell = player.holdings[fruit.id] > 0;
-    const heldQty = player.holdings[fruit.id];
 
     return `
       <tr>
@@ -422,7 +404,7 @@ function renderMarket() {
         <td><span class="badge ${fruit.badgeClass}">${fruit.category}</span></td>
         <td class="mono price-cell ${flashClass}">${fruit.price.toLocaleString()}원</td>
         <td><span class="change-badge ${changeClass}">${arrow} ${formatPercent(ratio)}</span></td>
-        <td class="mono">${heldQty}주</td>
+        <td class="mono">${player.holdings[fruit.id]}주</td>
         <td>
           <div class="trade-controls">
             <input type="number" class="qty-input mono" id="qty-${fruit.id}" value="1" min="1">
@@ -435,69 +417,86 @@ function renderMarket() {
   }).join('');
 }
 
-function renderNews() {
-  dom.newsText.textContent = latestNews
-    ? latestNews.text
-    : '첫째 날 시장이 개장했습니다. 행운을 빌어요!';
+function renderShop() {
+  dom.shopGrid.innerHTML = SHOP_ITEMS.map((item) => {
+    const owned = player.ownedItems.includes(item.id);
+    const canBuy = !owned && player.cash >= item.price;
+    return `
+      <div class="shop-item ${owned ? 'owned' : 'locked'}">
+        <span class="item-emoji">${item.emoji}</span>
+        <div class="item-name">${item.name}</div>
+        <div class="item-price mono">${formatWon(item.price)}</div>
+        ${owned
+          ? '<span class="owned-tag">✓ 보유중</span>'
+          : `<button class="btn buy-item-btn" data-item="${item.id}" ${canBuy ? '' : 'disabled'}>구매</button>`}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAchievements() {
+  dom.achvGrid.innerHTML = ACHIEVEMENTS.map((ach) => {
+    const unlocked = player.unlockedAchievements.includes(ach.id);
+    return `
+      <div class="achv-item ${unlocked ? 'unlocked' : 'locked'}">
+        <span class="item-emoji">${ach.emoji}</span>
+        <div class="item-name">${ach.name}</div>
+        <div class="item-desc">${unlocked ? ach.desc : '???'}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderHint() {
   dom.hintBtn.disabled = hintPurchasedToday || player.cash < HINT_COST;
   dom.hintBtn.textContent = hintPurchasedToday ? '오늘은 이미 정보를 샀어요' : `정보 구매 (${HINT_COST}원)`;
   dom.hintText.textContent = hintPurchasedToday
-    ? `"${todaysNews.hint}"`
+    ? `"${tomorrowsNews.hint}"`
     : '"아직 정보를 사지 않았어요..."';
 }
 
-function renderDayBadge() {
-  dom.dayNumber.textContent = dayCount;
-}
-
-// 위 렌더 함수들을 한 번에 호출하는 묶음 함수
 function renderAll() {
   renderDayBadge();
   renderNews();
   renderWallet();
+  renderBank();
   renderMarket();
+  renderShop();
+  renderAchievements();
   renderHint();
 }
 
 
 /* =====================================================================
-   ⑦ 거래(매수/매도) 로직
+   ⑦ 매수 / 매도
+   -----------------------------------------------------------------
+   ⚠️ 이 게임엔 예약 매매나 자동 거래 기능이 없습니다. 아래 두 함수는
+   오직 사용자가 버튼을 "직접 클릭"했을 때만 실행됩니다.
 ===================================================================== */
 
 function buyFruit(fruitId, qty) {
   const fruit = findFruit(fruitId);
   const cost = fruit.price * qty;
 
-  if (player.cash < cost) {
-    alert('현금이 부족해요! 🥲');
-    return;
-  }
+  if (player.cash < cost) { alert('현금이 부족해요! 🥲'); return; }
 
   player.cash -= cost;
   player.holdings[fruitId] += qty;
-  renderAll();
-  saveGame();
+  player.everBought = true;
+  commit();
 }
 
 function sellFruit(fruitId, qty) {
   const fruit = findFruit(fruitId);
 
-  if (player.holdings[fruitId] < qty) {
-    alert('보유한 수량보다 많이 팔 수 없어요! 🥲');
-    return;
-  }
+  if (player.holdings[fruitId] < qty) { alert('보유한 수량보다 많이 팔 수 없어요! 🥲'); return; }
 
   player.holdings[fruitId] -= qty;
   player.cash += fruit.price * qty;
-  renderAll();
-  saveGame();
+  player.everSold = true;
+  commit();
 }
 
-// 표가 매번 innerHTML로 다시 그려지므로, 버튼 각각에 리스너를 다는 대신
-// 부모 요소(tbody) 하나에만 걸어두는 "이벤트 위임" 방식을 씁니다.
 function handleMarketClick(event) {
   const button = event.target.closest('button[data-action]');
   if (!button) return;
@@ -506,58 +505,243 @@ function handleMarketClick(event) {
   const qtyInput = document.getElementById(`qty-${fruitId}`);
   const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
 
-  if (button.dataset.action === 'buy') {
-    buyFruit(fruitId, qty);
-  } else {
-    sellFruit(fruitId, qty);
-  }
+  if (button.dataset.action === 'buy') buyFruit(fruitId, qty);
+  else sellFruit(fruitId, qty);
 }
 
 
 /* =====================================================================
-   ⑧ 어둠의 정보상 (힌트 구매) 로직
+   ⑧ 은행 (대출 / 상환)
+===================================================================== */
+
+function borrowLoan(amount) {
+  if (amount <= 0) return;
+  if (player.loan + amount > LOAN_MAX) {
+    alert(`대출 한도(${formatWon(LOAN_MAX)})를 초과할 수 없어요!`);
+    return;
+  }
+  player.loan += amount;
+  player.cash += amount;
+  commit();
+}
+
+function repayLoan(amount) {
+  if (amount <= 0) return;
+  // Math.min으로 "입력값 / 남은 대출 / 가진 현금" 중 가장 작은 값을 골라
+  // 그 이상은 절대 상환되지 않도록 안전장치를 둡니다.
+  const payAmount = Math.min(amount, player.loan, player.cash);
+  if (payAmount <= 0) { alert('상환할 대출이 없거나 현금이 부족해요!'); return; }
+
+  player.loan -= payAmount;
+  player.cash -= payAmount;
+  commit();
+}
+
+
+/* =====================================================================
+   ⑨ 어둠의 정보상
 ===================================================================== */
 
 function buyHint() {
   if (hintPurchasedToday) return;
-
-  if (player.cash < HINT_COST) {
-    alert('정보상에게 낼 돈이 부족해요! 🥲');
-    return;
-  }
+  if (player.cash < HINT_COST) { alert('정보상에게 낼 돈이 부족해요! 🥲'); return; }
 
   player.cash -= HINT_COST;
   hintPurchasedToday = true;
-  renderAll();
-  saveGame();
+  commit();
 }
 
 
 /* =====================================================================
-   ⑨ 하루 진행 & 타이머 로직
-   -----------------------------------------------------------------
-   ⚠️ 지난 미니게임(사과/바나나/두리안 버전)에서는 턴 간격이 "5~10초 사이
-   무작위"였기 때문에 setTimeout을 재귀 호출하는 방식을 썼어요.
-   이번에는 간격이 "정확히 5분 고정"이라서 오히려 더 단순한 setInterval을
-   씁니다. 두 방식의 차이를 표로 정리하면:
-
-     상황                     추천 방식
-     -----------------------  ------------------------------
-     고정된 간격으로 반복       setInterval(fn, ms)
-     매번 다른(무작위) 간격     setTimeout(fn, ms)을 fn 안에서 재귀 호출
-
-   그리고 파이썬의 time.sleep(n)과 결정적으로 다른 점은, setInterval도
-   "그 자리에서 멈추는 것"이 아니라 "n밀리초마다 이 함수를 실행해줘"라고
-   브라우저에게 예약해두는 것뿐이라는 거예요. 그래서 5분을 기다리는 동안에도
-   매수/매도 버튼 클릭 같은 사용자 반응은 전혀 막히지 않습니다.
-
-   ⏱️ 정확한 카운트다운을 위해 "남은 시간을 셀 때마다 1초씩 깎는" 방식 대신,
-   "하루가 끝나는 정확한 시각(dayEndAt)"을 미리 정해두고, 매 tick마다
-   dayEndAt - Date.now()로 남은 시간을 계산합니다. 이렇게 하면 브라우저 탭이
-   잠깐 멈췄다 돌아와도(예: 다른 탭을 오래 보다 옴) 시간이 부정확해지지
-   않고, 새로고침 후에도 저장해둔 dayEndAt으로 정확히 이어서 카운트할 수
-   있어요.
+   ⑩ 사치품 상점
 ===================================================================== */
+
+function buyItem(itemId) {
+  if (player.ownedItems.includes(itemId)) return; // .includes()는 파이썬의 `in` 연산자와 같은 역할
+
+  const item = SHOP_ITEMS.find((i) => i.id === itemId);
+  if (player.cash < item.price) { alert('돈이 부족해요! 🥲'); return; }
+
+  player.cash -= item.price;
+  player.ownedItems.push(itemId); // .push()는 파이썬의 list.append()와 동일
+  commit();
+}
+
+function handleShopClick(event) {
+  const button = event.target.closest('button[data-item]');
+  if (!button) return;
+  buyItem(button.dataset.item);
+}
+
+
+/* =====================================================================
+   ⑪ 업적 & 토스트 알림
+===================================================================== */
+
+function getAchievementState() {
+  return {
+    cash: player.cash,
+    totalAssets: computeTotalAssets(),
+    durianPrice: findFruit('durian-bio').price,
+    ownedItemsCount: player.ownedItems.length,
+    dayCount,
+    everBought: player.everBought,
+    everSold: player.everSold,
+  };
+}
+
+function checkAchievements() {
+  const state = getAchievementState();
+  ACHIEVEMENTS.forEach((ach) => {
+    if (player.unlockedAchievements.includes(ach.id)) return; // 이미 달성한 건 건너뜀
+    if (ach.check(state)) {
+      player.unlockedAchievements.push(ach.id);
+      queueToast(`🏆 업적 달성! <strong>${ach.name}</strong> — ${ach.desc}`);
+    }
+  });
+}
+
+// 토스트가 동시에 여러 개 뜨면 겹쳐 보이니, 큐(대기열)에 순서대로 쌓아뒀다가
+// 하나씩 보여줍니다. 파이썬의 리스트를 큐처럼 쓰는 것(append로 넣고
+// pop(0)으로 꺼내는 것)과 같은 개념이에요.
+let toastQueue = [];
+let toastBusy = false;
+
+function queueToast(html) {
+  toastQueue.push(html);
+  if (!toastBusy) playNextToast();
+}
+
+function playNextToast() {
+  if (toastQueue.length === 0) { toastBusy = false; return; }
+  toastBusy = true;
+
+  const html = toastQueue.shift(); // 맨 앞 항목을 꺼내며 제거 (파이썬의 list.pop(0))
+  dom.toast.innerHTML = html;
+  dom.toast.classList.add('visible');
+
+  setTimeout(() => {
+    dom.toast.classList.remove('visible');
+    setTimeout(playNextToast, 400); // 슬라이드 아웃 애니메이션이 끝난 뒤 다음 토스트
+  }, 3200);
+}
+
+
+/* =====================================================================
+   ⑫ 차트 (Chart.js)
+   -----------------------------------------------------------------
+   Chart.js는 파이썬의 matplotlib과 비슷한 "그래프 그려주는 라이브러리"인데,
+   결정적인 차이는 한 번 그리고 끝나는 게 아니라 데이터를 계속 밀어넣고
+   .update()를 호출하면 실시간으로 다시 그려준다는 점이에요.
+===================================================================== */
+
+function initChart() {
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  priceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: fruits.map((fruit) => ({
+        label: fruit.name,
+        data: [],
+        borderColor: fruit.chartColor,
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        pointRadius: 0,
+        borderWidth: 2,
+      })),
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false, // 10초마다 갱신되므로 애니메이션은 꺼서 깜빡임을 줄입니다
+      scales: {
+        x: { ticks: { color: '#8b8f9e', maxRotation: 0 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: {
+          ticks: { color: '#8b8f9e', callback: (v) => `${v}%` },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+        },
+      },
+      plugins: {
+        legend: { labels: { color: '#c7c9d1', boxWidth: 12, font: { size: 11 } } },
+      },
+    },
+  });
+}
+
+function resetChart() {
+  priceChart.data.labels = [];
+  priceChart.data.datasets.forEach((ds) => { ds.data = []; });
+  priceChart.update();
+}
+
+function updateChart() {
+  priceChart.data.labels.push(`${tickIndexToday * 10}s`);
+
+  fruits.forEach((fruit, i) => {
+    const changePercent = ((fruit.price / fruit.dayStartPrice) - 1) * 100;
+    priceChart.data.datasets[i].data.push(changePercent.toFixed(2));
+  });
+
+  // 하루 분량(30틱)만 남기고 오래된 데이터는 버립니다.
+  // .shift()는 배열 맨 앞 요소를 꺼내며 지우는 함수 - 파이썬의 list.pop(0)과 동일해요.
+  if (priceChart.data.labels.length > TICKS_PER_DAY) {
+    priceChart.data.labels.shift();
+    priceChart.data.datasets.forEach((ds) => ds.data.shift());
+  }
+
+  priceChart.update();
+}
+
+
+/* =====================================================================
+   ⑬ 하루 진행 & 10초 시세 틱
+   -----------------------------------------------------------------
+   ⏱️ 이 게임에는 서로 다른 두 개의 리듬이 동시에 흐릅니다.
+     - 5분(300초)마다 한 번: 하루가 바뀌고 뉴스/배당/이자가 정산됨
+     - 10초마다 한 번: 주가가 실시간으로 조금씩 움직임
+
+   두 리듬을 각각 setInterval로 따로 두면 시간이 갈수록 미세하게
+   어긋날 수 있어서, 여기서는 "1초마다 도는 하나의 시계"(tickClock)
+   안에서 남은 시간을 계산해 "10초 단위가 바뀌는 순간"을 스스로
+   감지하는 방식을 씁니다. 파이썬의 time.sleep(1)을 무한 반복하며
+   매번 조건을 검사하는 것과 비슷한 느낌이지만, 역시 프로그램을
+   멈추지 않고 "1초마다 실행 예약"만 한다는 점이 다릅니다.
+===================================================================== */
+
+// 오늘의 뉴스가 각 회사에 미치는 "틱당 추세"를 미리 계산해둡니다.
+function applyTodaysNewsTrend(news) {
+  fruits.forEach((fruit) => {
+    if (newsAffectsFruit(news, fruit)) {
+      const dayTotalTarget = randomFloat(news.changeRange[0], news.changeRange[1]);
+      fruit.todayTickDrift = dayTotalTarget / TICKS_PER_DAY;
+    } else {
+      fruit.todayTickDrift = 0;
+    }
+  });
+}
+
+function runPriceTick() {
+  tickIndexToday += 1;
+
+  fruits.forEach((fruit) => {
+    fruit.prevPrice = fruit.price;
+
+    // 이번 틱의 등락률 = 무작위 노이즈 + 회사 고유 기본 드리프트 + 오늘의 뉴스 추세
+    // "호재가 터진 날은 오를 확률과 폭이 더 크다"는 요구사항은, 대칭적인
+    // 무작위 값(noise)에 오늘의 추세(todayTickDrift)를 더하는 것만으로
+    // 자연스럽게 구현됩니다. 추세가 양수로 클수록 결과값이 양수가 될
+    // 확률도, 평균 크기도 함께 커지거든요.
+    const noise = randomFloat(-fruit.tickVolatility, fruit.tickVolatility);
+    const baselineDrift = fruit.dailyDrift / TICKS_PER_DAY;
+    const changeRatio = noise + baselineDrift + fruit.todayTickDrift;
+
+    fruit.price = Math.max(1, Math.round(fruit.price * (1 + changeRatio)));
+  });
+
+  updateChart();
+  commit();
+}
 
 function updateTimerDisplay(remainingMs) {
   const totalSeconds = Math.ceil(remainingMs / 1000);
@@ -569,34 +753,39 @@ function updateTimerDisplay(remainingMs) {
   dom.timerFill.style.width = `${percent}%`;
 }
 
-function resolveDay() {
-  const news = todaysNews; // 오늘 미리 뽑아뒀던 그 뉴스
+function resolveDayEnd() {
+  // 1) 델몬트바나나 배당금 지급
+  const banana = findFruit('delmonte-banana');
+  const bananaQty = player.holdings['delmonte-banana'];
+  if (bananaQty > 0) {
+    const dividend = Math.round(bananaQty * banana.price * DIVIDEND_RATE);
+    player.cash += dividend;
+    queueToast(`🍌 델몬트바나나 배당금 ${formatWon(dividend)} 지급!`);
+  }
 
-  fruits.forEach((fruit) => {
-    fruit.prevPrice = fruit.price;
+  // 2) 대출 이자 인출
+  if (player.loan > 0) {
+    const interest = Math.round(player.loan * LOAN_INTEREST_RATE);
+    player.cash -= interest;
+    queueToast(`🏦 대출 이자 ${formatWon(interest)}가 빠져나갔어요`);
+  }
 
-    // 매일 기본적으로 회사 고유의 변동성 + 드리프트만큼 가격이 흔들립니다.
-    // 파이썬: change = fruit['drift'] + random.uniform(-fruit['volatility'], fruit['volatility'])
-    const baseChange = fruit.drift + randomFloat(-fruit.volatility, fruit.volatility);
-    let multiplier = 1 + baseChange;
+  // 3) 오늘의 뉴스를 교체: 어제 몰래 뽑아뒀던 "내일의 뉴스"가 오늘의 뉴스가 됨
+  todaysNews = tomorrowsNews;
+  tomorrowsNews = pickRandomNews();
+  applyTodaysNewsTrend(todaysNews);
 
-    // 오늘의 뉴스가 이 회사에 해당된다면, 추가로 뉴스 효과를 곱해줍니다.
-    if (newsAffectsFruit(news, fruit)) {
-      const newsChange = randomFloat(news.changeRange[0], news.changeRange[1]);
-      multiplier *= (1 + newsChange);
-    }
+  // 4) 하루 & 차트 리셋
+  fruits.forEach((f) => { f.dayStartPrice = f.price; });
+  resetChart();
+  tickIndexToday = 0;
+  lastPriceTickElapsed = 0;
 
-    fruit.price = Math.max(1, Math.round(fruit.price * multiplier));
-  });
-
-  latestNews = news;       // 화면에 "오늘의 뉴스"로 표시
   dayCount += 1;
   hintPurchasedToday = false;
-  todaysNews = pickRandomNews(); // 다음 날 몰래 터질 뉴스를 새로 미리 뽑아둠
   dayEndAt = Date.now() + DAY_DURATION_MS;
 
-  renderAll();
-  saveGame();
+  commit();
 }
 
 function tickClock() {
@@ -604,30 +793,50 @@ function tickClock() {
   updateTimerDisplay(Math.max(0, remaining));
 
   if (remaining <= 0) {
-    resolveDay();
+    resolveDayEnd();
+    return;
+  }
+
+  const elapsed = DAY_DURATION_MS - remaining;
+  const tickSlot = Math.floor(elapsed / PRICE_TICK_MS);
+
+  if (tickSlot !== lastPriceTickElapsed) {
+    lastPriceTickElapsed = tickSlot;
+    runPriceTick();
   }
 }
 
 
 /* =====================================================================
-   ⑩ 초기화
+   ⑭ 초기화
 ===================================================================== */
 
 function init() {
-  const hasSave = loadGame(); // 저장된 데이터가 있으면 불러오고, 없으면 위에서 정한 초기값 그대로 시작
+  initChart();
+
+  const hasSave = loadGame();
   if (!hasSave) {
-    saveGame(); // 새 게임이면 초기 상태를 바로 한 번 저장해둠
+    // 새 게임이면 첫째 날의 뉴스 추세도 여기서 바로 계산해줍니다.
+    applyTodaysNewsTrend(todaysNews);
+    fruits.forEach((f) => { f.dayStartPrice = f.price; });
+    saveGame();
   }
 
   renderAll();
 
   dom.stockTableBody.addEventListener('click', handleMarketClick);
+  dom.shopGrid.addEventListener('click', handleShopClick);
   dom.hintBtn.addEventListener('click', buyHint);
   dom.resetBtn.addEventListener('click', resetGame);
+  dom.borrowBtn.addEventListener('click', () => {
+    borrowLoan(Math.max(0, parseInt(dom.loanAmount.value, 10) || 0));
+  });
+  dom.repayBtn.addEventListener('click', () => {
+    repayLoan(Math.max(0, parseInt(dom.loanAmount.value, 10) || 0));
+  });
 
-  // 1초(1000ms)마다 tickClock을 반복 실행합니다.
-  // 파이썬으로 치면 while True: tick(); time.sleep(1) 과 비슷해 보이지만,
-  // 앞서 설명했듯 프로그램 전체를 멈추지 않고 "예약"만 한다는 점이 다릅니다.
+  // 1초마다 tickClock 반복 실행 (파이썬의 무한루프+sleep(1)과 비슷하지만
+  // 프로그램을 멈추지 않고 "예약"만 한다는 점이 다릅니다 - ⑬번 섹션 설명 참고)
   setInterval(tickClock, 1000);
 }
 

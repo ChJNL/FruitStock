@@ -10,14 +10,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
+  <!-- Chart.js를 CDN으로 불러옵니다. 이 태그가 실행된 뒤에야 전역에 Chart라는
+       이름의 생성자 함수가 생기므로, 반드시 script.js보다 "먼저" 로드돼야 해요. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- 업적 달성 / 배당 / 이자 알림이 뜨는 토스트 (평소엔 화면 위로 숨어있음) -->
+  <div class="toast" id="toast"></div>
+
   <div class="app-shell">
 
     <!-- ============================================
-         상단 바: 로고 + 오늘이 며칠째인지 뱃지
+         상단 바
     ============================================ -->
     <header class="top-bar">
       <div class="brand">
@@ -31,7 +38,7 @@
     </header>
 
     <!-- ============================================
-         타이머 바: 다음 정산(하루 종료)까지 남은 시간
+         타이머 바
     ============================================ -->
     <section class="timer-section">
       <div class="timer-labels">
@@ -44,8 +51,7 @@
     </section>
 
     <!-- ============================================
-         오늘의 뉴스 패널 (하루가 바뀔 때마다 갱신되고,
-         토스트처럼 잠깐 뜨는 게 아니라 계속 보여줍니다)
+         오늘의 뉴스 (하루 시작과 동시에 공개됨)
     ============================================ -->
     <section class="news-panel" id="newsPanel">
       <span class="news-icon">📰</span>
@@ -58,34 +64,43 @@
     <main class="main-grid">
 
       <!-- ============================================
-           왼쪽 사이드 컬럼: 내 자산 + 정보상
+           왼쪽 사이드 컬럼: 자산 / 은행 / 정보상
       ============================================ -->
       <aside class="side-col">
 
         <div class="panel wallet-panel">
           <h2>💰 내 자산</h2>
-
           <div class="stat-row">
             <span class="stat-label">보유 현금</span>
             <span class="stat-value mono" id="cashValue">0원</span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">평가 총자산</span>
+            <span class="stat-label">순자산 (현금+주식-대출)</span>
             <span class="stat-value mono gold-text" id="totalValue">0원</span>
           </div>
-
           <hr class="divider">
-
           <h3>보유 종목</h3>
-          <ul class="holdings-list" id="holdingsList">
-            <!-- script.js가 자동 생성 -->
-          </ul>
+          <ul class="holdings-list" id="holdingsList"></ul>
+        </div>
+
+        <div class="panel bank-panel">
+          <h2>🏦 은행</h2>
+          <div class="stat-row">
+            <span class="stat-label">대출 잔액</span>
+            <span class="stat-value mono" id="loanValue">0원</span>
+          </div>
+          <p class="bank-note">대출 이자는 하루가 끝날 때마다 5%씩 현금에서 빠져나가요.</p>
+          <div class="bank-controls">
+            <input type="number" class="qty-input mono bank-amount-input" id="loanAmount" value="500000" min="10000" step="10000">
+            <button class="btn borrow-btn" id="borrowBtn">대출</button>
+            <button class="btn repay-btn" id="repayBtn">상환</button>
+          </div>
         </div>
 
         <div class="panel informant-panel">
           <h2>🕵️ 어둠의 정보상</h2>
           <p class="informant-desc">
-            돈을 내면 오늘 밤 터질 뉴스에 대한 흐릿한 힌트를 얻을 수 있다는 소문이...
+            돈을 내면 내일 터질 뉴스에 대한 흐릿한 힌트를 얻을 수 있다는 소문이...
           </p>
           <p class="hint-text" id="hintText">"아직 정보를 사지 않았어요..."</p>
           <button class="btn hint-btn" id="hintBtn">정보 구매 (500원)</button>
@@ -94,30 +109,53 @@
       </aside>
 
       <!-- ============================================
-           오른쪽: 실시간 시세판 (표 형태의 HTS 스타일)
+           오른쪽: 차트 + 실시간 시세표
       ============================================ -->
-      <section class="panel table-panel">
-        <h2>📈 실시간 시세</h2>
-        <div class="table-scroll">
-          <table class="stock-table">
-            <thead>
-              <tr>
-                <th>종목</th>
-                <th>구분</th>
-                <th>현재가</th>
-                <th>등락</th>
-                <th>보유</th>
-                <th>거래</th>
-              </tr>
-            </thead>
-            <tbody id="stockTableBody">
-              <!-- script.js가 fruits 배열을 기반으로 6개 행을 자동 생성 -->
-            </tbody>
-          </table>
-        </div>
+      <div class="content-col">
+
+        <section class="panel chart-panel">
+          <h2>📊 오늘의 추세 (시가 대비 %)</h2>
+          <div class="chart-wrap">
+            <canvas id="priceChart"></canvas>
+          </div>
+        </section>
+
+        <section class="panel table-panel">
+          <h2>📈 실시간 시세 (10초마다 갱신)</h2>
+          <div class="table-scroll">
+            <table class="stock-table">
+              <thead>
+                <tr>
+                  <th>종목</th>
+                  <th>구분</th>
+                  <th>현재가</th>
+                  <th>등락</th>
+                  <th>보유</th>
+                  <th>거래</th>
+                </tr>
+              </thead>
+              <tbody id="stockTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ============================================
+         하단: 사치품 상점 + 업적 도감
+    ============================================ -->
+    <div class="bottom-grid">
+      <section class="panel shop-panel">
+        <h2>🏙️ 사치품 상점</h2>
+        <div class="shop-grid" id="shopGrid"></div>
       </section>
 
-    </main>
+      <section class="panel achv-panel">
+        <h2>🏆 업적 도감</h2>
+        <div class="achv-grid" id="achvGrid"></div>
+      </section>
+    </div>
 
     <footer class="app-footer">
       <p>새로고침해도 자산은 그대로 저장돼요 (localStorage)</p>
@@ -126,7 +164,7 @@
 
   </div>
 
-  <!-- JS는 항상 body 맨 아래에서 불러옵니다 (DOM이 먼저 준비되어야 하므로) -->
+  <!-- JS는 항상 body 맨 아래에서 불러옵니다 (DOM과 Chart.js가 먼저 준비되어야 하므로) -->
   <script src="script.js"></script>
 </body>
 </html>
