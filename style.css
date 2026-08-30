@@ -1,5 +1,5 @@
 /* ============================================
-   디자인 토큰
+   디자인 토큰 (전체적인 기본 폰트 크기 확대)
 ============================================ */
 :root {
   --bg: #0b0d12;
@@ -9,7 +9,7 @@
   --row-b: #171b26;
   --border: #262b3a;
   --text-main: #e8e6df;
-  --text-dim: #8b8f9e;
+  --text-dim: #9ea3b5;
 
   --gold: #d4af37;
   --gold-soft: rgba(212, 175, 55, 0.14);
@@ -21,7 +21,7 @@
   --up-soft: rgba(224, 72, 62, 0.14);
   --down-soft: rgba(79, 131, 204, 0.14);
 
-  --radius: 12px;
+  --radius: 14px;
   --mono: 'JetBrains Mono', 'Consolas', monospace;
   --sans: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
   --brand-font: 'Sora', var(--sans);
@@ -35,6 +35,7 @@ html, body {
   background: var(--bg);
   color: var(--text-main);
   font-family: var(--sans);
+  font-size: 16px; /* 기본 글자 크기 확대 */
   line-height: 1.5;
   height: 100%;
 }
@@ -43,7 +44,7 @@ html, body {
 .gold-text { color: var(--gold); }
 
 /* ============================================
-   토스트 알림
+   토스트 알림 (크기 확대)
 ============================================ */
 .toast {
   position: fixed;
@@ -54,9 +55,9 @@ html, body {
   background: var(--gold);
   color: #1a1200;
   font-weight: 700;
-  font-size: 13px;
-  padding: 10px 20px;
-  border-radius: 0 0 10px 10px;
+  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: 0 0 12px 12px;
   z-index: 200;
   box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
   max-width: 90vw;
@@ -88,36 +89,36 @@ html, body {
   border-radius: var(--radius);
   padding: 40px;
   text-align: center;
-  max-width: 450px;
+  max-width: 500px;
   width: 90%;
   box-shadow: 0 16px 48px rgba(0, 0, 0, .6);
   animation: slideIn .3s ease-out;
 }
 .news-modal-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
+  font-size: 56px;
+  margin-bottom: 16px;
 }
 .news-modal-content h2 {
   color: var(--gold);
-  font-size: 22px;
-  margin: 0 0 12px;
+  font-size: 26px;
+  margin: 0 0 16px;
   letter-spacing: 1px;
 }
 .news-modal-text {
-  font-size: 14px;
+  font-size: 17px;
   color: var(--text-main);
-  margin: 0 0 20px;
+  margin: 0 0 24px;
   line-height: 1.6;
-  min-height: 50px;
+  min-height: 60px;
 }
 .news-close-btn {
   background: var(--gold);
   color: #1a1200;
-  padding: 10px 28px;
-  font-size: 13px;
+  padding: 14px 36px;
+  font-size: 16px;
   font-weight: 700;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: opacity .2s;
 }
@@ -148,8 +149,8 @@ html, body {
 }
 
 .phone-frame {
-  width: 340px;
-  height: 680px;
+  width: 380px;
+  height: 720px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border: 12px solid #000;
   border-radius: 40px;
@@ -180,7 +181,7 @@ html, body {
   padding: 12px 20px;
   background: linear-gradient(180deg, rgba(26,26,46,0.8) 0%, transparent 100%);
   padding-top: 30px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-main);
   z-index: 11;
   border-bottom: 1px solid var(--border);
@@ -188,14 +189,14 @@ html, body {
 
 .phone-time {
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .phone-close-btn {
   background: none;
   border: none;
   color: var(--text-main);
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   padding: 0;
   transition: opacity .2s;
@@ -205,7 +206,7 @@ html, body {
 .phone-content {
   flex: 1;
   overflow-y: auto;
-  padding: 12px;
+  padding: 16px;
   background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg) 100%);
 }
 
@@ -220,8 +221,8 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 20px;
+  gap: 10px;
+  padding: 24px;
   background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -233,12 +234,10 @@ html, body {
   transform: scale(0.95);
 }
 
-.app-emoji {
-  font-size: 36px;
-}
+.app-emoji { font-size: 42px; }
 
 .app-name {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   text-align: center;
   color: var(--text-main);
@@ -264,14 +263,14 @@ html, body {
   color: var(--gold);
   cursor: pointer;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 14px;
   transition: opacity .2s;
 }
 .app-back-btn:hover { opacity: 0.7; }
 
 .app-header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   flex: 1;
 }
 
@@ -282,37 +281,37 @@ html, body {
 }
 
 .guide-item {
-  margin-bottom: 14px;
-  padding: 10px;
+  margin-bottom: 16px;
+  padding: 14px;
   background: var(--row-a);
-  border-radius: 8px;
-  border-left: 3px solid var(--gold);
+  border-radius: 10px;
+  border-left: 4px solid var(--gold);
 }
 .guide-item h4 {
-  margin: 0 0 4px;
-  font-size: 12px;
+  margin: 0 0 6px;
+  font-size: 14px;
   color: var(--gold);
 }
 .guide-item p {
   margin: 0;
-  font-size: 11px;
-  color: var(--text-dim);
-  line-height: 1.4;
+  font-size: 13px;
+  color: var(--text-main);
+  line-height: 1.5;
 }
 
-.phone-achv-grid {
+.phone-achv-grid, .phone-shop-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
-.phone-achv-item {
+.phone-achv-item, .phone-shop-item {
   background: var(--row-a);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 12px;
   text-align: center;
 }
-.phone-achv-item.unlocked {
+.phone-achv-item.unlocked, .phone-shop-item.owned {
   border-color: var(--gold);
   background: rgba(212, 175, 55, 0.1);
 }
@@ -320,126 +319,95 @@ html, body {
   filter: grayscale(1);
   opacity: 0.3;
 }
-.achv-emoji {
-  font-size: 20px;
+.achv-emoji, .shop-emoji {
+  font-size: 28px;
   display: block;
-  margin-bottom: 4px;
-}
-.achv-name {
-  font-size: 10px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-.achv-desc {
-  font-size: 8px;
-  color: var(--text-dim);
-}
-
-.phone-shop-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-.phone-shop-item {
-  background: var(--row-a);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px;
-  text-align: center;
-}
-.phone-shop-item.owned {
-  border-color: var(--gold);
-  background: rgba(212, 175, 55, 0.1);
-}
-.shop-emoji {
-  font-size: 24px;
-  display: block;
-  margin-bottom: 4px;
-}
-.shop-name {
-  font-size: 10px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-.shop-price {
-  font-size: 9px;
-  color: var(--text-dim);
   margin-bottom: 6px;
+}
+.achv-name, .shop-name {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.achv-desc, .shop-price {
+  font-size: 11px;
+  color: var(--text-dim);
 }
 .buy-shop-btn {
   width: 100%;
   background: var(--gold-soft);
   color: var(--gold);
   border: 1px solid var(--gold);
-  font-size: 9px;
-  padding: 4px;
-  border-radius: 4px;
+  font-size: 12px;
+  padding: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 700;
+  margin-top: 6px;
 }
 .buy-shop-btn:disabled { opacity: 0.3; }
 .owned-tag {
   display: inline-block;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--gold);
   font-weight: 700;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 
 .info-section {
-  margin-bottom: 14px;
-  padding: 10px;
+  margin-bottom: 16px;
+  padding: 14px;
   background: var(--row-a);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 .info-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
-  font-size: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 .info-section h4 {
-  margin: 8px 0 6px;
-  font-size: 11px;
+  margin: 10px 0 8px;
+  font-size: 13px;
   color: var(--gold);
 }
 .info-section hr {
   border: none;
   border-top: 1px solid var(--border);
-  margin: 8px 0;
+  margin: 10px 0;
 }
 .holdings-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 120px;
+  max-height: 140px;
   overflow-y: auto;
 }
 .holdings-item {
   display: flex;
   justify-content: space-between;
-  padding: 4px 0;
-  font-size: 11px;
+  padding: 6px 0;
+  font-size: 13px;
   border-bottom: 1px dashed var(--border);
 }
 .holdings-item:last-child { border-bottom: none; }
 .holdings-empty {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-dim);
   text-align: center;
-  padding: 6px 0;
+  padding: 8px 0;
 }
 
 .hint-text {
   font-family: var(--mono);
   font-style: italic;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--silver);
   background: rgba(255, 255, 255, 0.03);
-  padding: 6px;
-  border-radius: 4px;
-  margin-bottom: 6px;
-  min-height: 30px;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  min-height: 40px;
 }
 
 .hint-btn {
@@ -447,9 +415,9 @@ html, body {
   background: var(--gold-soft);
   color: var(--gold);
   border: 1px solid var(--gold);
-  font-size: 10px;
-  padding: 6px;
-  border-radius: 4px;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 700;
 }
@@ -460,22 +428,22 @@ html, body {
   background: rgba(224, 72, 62, 0.2);
   color: #e0483e;
   border: 1px solid #e0483e;
-  font-size: 10px;
-  padding: 6px;
-  border-radius: 4px;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 700;
 }
 
 .phone-footer {
-  height: 20px;
+  height: 24px;
   background: #000;
-  padding: 4px 8px;
+  padding: 6px 12px;
 }
 
 .battery-bar {
   width: 100%;
-  height: 3px;
+  height: 4px;
   background: linear-gradient(90deg, var(--gold) 80%, var(--down) 100%);
   border-radius: 2px;
 }
@@ -495,46 +463,44 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: 16px 24px;
   background: linear-gradient(180deg, var(--bg-light) 0%, transparent 100%);
   border-bottom: 1px solid var(--border);
   z-index: 100;
 }
 
-.header-left {
-  flex: 1;
-}
+.header-left { flex: 1; }
 
 .app-title {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
 }
 
 .header-right {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
 .phone-button {
   background: var(--gold);
   color: #1a1200;
   border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 18px;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 22px;
   cursor: pointer;
   transition: opacity .2s;
   font-weight: 700;
 }
 .phone-button:hover { opacity: .85; }
 
-/* 타이머 & 뉴스 바 */
+/* 타이머 & 뉴스 바 (확대) */
 .timer-news-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 20px;
+  gap: 16px;
+  padding: 14px 24px;
   background: var(--row-a);
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
@@ -543,48 +509,46 @@ html, body {
 .timer-info {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+  font-size: 15px;
   white-space: nowrap;
 }
 
 .day-label {
-  font-size: 10px;
+  font-size: 13px;
   letter-spacing: 1px;
   color: var(--gold);
   font-weight: 700;
 }
 
 .day-number {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-main);
 }
 
 .time-separator {
   color: var(--border);
-  margin: 0 4px;
+  margin: 0 6px;
 }
 
 .timer-text {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--gold);
 }
 
 .news-ticker {
   flex: 1;
-  min-width: 200px;
+  min-width: 250px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 8px;
+  font-size: 14px;
   color: var(--text-dim);
 }
 
-.news-emoji {
-  font-size: 14px;
-}
+.news-emoji { font-size: 18px; }
 
 .news-title {
   font-weight: 600;
@@ -601,10 +565,10 @@ html, body {
 
 .timer-track-container {
   width: 100%;
-  height: 4px;
+  height: 6px;
   background: var(--panel-bg);
   border: none;
-  border-radius: 2px;
+  border-radius: 3px;
   padding: 0;
   cursor: pointer;
   overflow: hidden;
@@ -618,14 +582,14 @@ html, body {
 }
 
 /* ============================================
-   메인 거래 영역 (새로운 2단 레이아웃)
+   메인 거래 영역
 ============================================ */
 .trading-area {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  gap: 20px;
   flex: 1;
-  padding: 16px 20px;
+  padding: 20px 24px;
   overflow: hidden;
 }
 
@@ -633,30 +597,30 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* ============================================
-   자산 정보 카드 (확대)
+   자산 정보 카드 (글자 및 수치 크기 대폭 확대)
 ============================================ */
 .asset-info-card {
   background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px;
-  border-left: 4px solid var(--gold);
+  padding: 20px;
+  border-left: 5px solid var(--gold);
 }
 
 .asset-info-card h3 {
-  margin: 0 0 12px;
-  font-size: 15px;
+  margin: 0 0 16px;
+  font-size: 18px;
   color: var(--text-main);
   font-weight: 700;
 }
 
 .asset-info-card h4 {
-  margin: 12px 0 8px;
-  font-size: 11px;
+  margin: 16px 0 10px;
+  font-size: 14px;
   letter-spacing: 1px;
   color: var(--gold);
   text-transform: uppercase;
@@ -667,8 +631,8 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 8px;
-  font-size: 13px;
+  margin-bottom: 12px;
+  font-size: 15px;
 }
 
 .asset-row span:first-child {
@@ -677,7 +641,7 @@ html, body {
 }
 
 .asset-value {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   text-align: right;
 }
@@ -685,52 +649,43 @@ html, body {
 .asset-divider {
   border: none;
   border-top: 1px solid var(--border);
-  margin: 10px 0;
+  margin: 14px 0;
 }
 
 .holdings-mini {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 120px;
+  max-height: 150px;
   overflow-y: auto;
-  font-size: 12px;
+  font-size: 14px;
 }
 
-.holdings-mini::-webkit-scrollbar {
-  width: 4px;
-}
-
+.holdings-mini::-webkit-scrollbar { width: 5px; }
 .holdings-mini::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 2px;
-}
-
-.holdings-mini::-webkit-scrollbar-thumb:hover {
-  background: var(--gold);
+  border-radius: 3px;
 }
 
 .holdings-mini-item {
   display: flex;
   justify-content: space-between;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px dashed var(--border);
-  color: var(--text-dim);
+  color: var(--text-main);
 }
 
-.holdings-mini-item:last-child {
-  border-bottom: none;
-}
+.holdings-mini-item:last-child { border-bottom: none; }
 
 .holdings-empty-mini {
   text-align: center;
   color: var(--text-dim);
-  font-size: 11px;
-  padding: 6px 0;
+  font-size: 13px;
+  padding: 10px 0;
 }
 
 /* ============================================
-   거래 리스트 래퍼
+   거래 리스트 래퍼 및 가독성 최적화
 ============================================ */
 .market-list-wrapper {
   flex: 1;
@@ -739,56 +694,48 @@ html, body {
   min-height: 0;
 }
 
-.section-header {
-  margin-bottom: 8px;
-}
+.section-header { margin-bottom: 12px; }
 
 .section-header h2 {
   margin: 0;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-main);
   font-weight: 700;
 }
 
 /* ============================================
-   과일 주식 리스트 (최적화 - 큰 사이즈)
+   과일 주식 리스트 (전체 크기 확대 반영)
 ============================================ */
 .market-list {
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-right: 6px;
+  gap: 12px;
+  padding-right: 8px;
 }
 
-.market-list::-webkit-scrollbar {
-  width: 6px;
-}
-
+.market-list::-webkit-scrollbar { width: 8px; }
 .market-list::-webkit-scrollbar-track {
   background: rgba(0,0,0,0.2);
-  border-radius: 3px;
+  border-radius: 4px;
 }
-
 .market-list::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 3px;
+  border-radius: 4px;
 }
+.market-list::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
-.market-list::-webkit-scrollbar-thumb:hover {
-  background: var(--gold);
-}
-
+/* 주식 아이템 카드 크기 확장 */
 .market-item {
   display: grid;
-  grid-template-columns: auto 1fr 75px 65px;
-  gap: 10px;
+  grid-template-columns: auto 1fr 110px 140px;
+  gap: 16px;
   align-items: center;
   background: var(--panel-bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 16px 20px;
   cursor: pointer;
   transition: all .2s;
 }
@@ -796,11 +743,11 @@ html, body {
 .market-item:hover {
   background: var(--row-a);
   border-color: var(--gold-soft);
-  transform: translateX(2px);
+  transform: translateX(4px);
 }
 
 .market-item.selected {
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.12);
   border-color: var(--gold);
   box-shadow: 0 0 0 1px var(--gold-soft) inset;
 }
@@ -813,14 +760,13 @@ html, body {
 .item-name-section {
   display: flex;
   align-items: center;
-  gap: 10px;
-  cursor: pointer;
+  gap: 14px;
   min-width: 0;
 }
 
 .item-emoji {
-  font-size: 24px;
-  min-width: 24px;
+  font-size: 32px;
+  min-width: 32px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -828,24 +774,24 @@ html, body {
 .item-name-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 
 .item-name {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-main);
 }
 
 .item-ticker {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-dim);
   font-family: var(--mono);
 }
 
 .item-price {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-main);
   font-family: var(--mono);
@@ -853,12 +799,12 @@ html, body {
 }
 
 .item-change {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  padding: 4px 6px;
-  border-radius: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
   text-align: center;
-  min-width: 60px;
+  min-width: 75px;
 }
 
 .item-change.up {
@@ -878,42 +824,47 @@ html, body {
 
 .item-controls {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: flex-end;
+  align-items: center;
   flex-shrink: 0;
 }
 
 .qty-input {
-  width: 45px;
-  height: 28px;
+  width: 55px;
+  height: 38px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text-main);
-  padding: 0 6px;
+  padding: 0 8px;
   text-align: center;
-  font-size: 11px;
+  font-size: 14px;
   font-family: var(--mono);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .qty-input:focus {
   outline: none;
   border-color: var(--gold);
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
 }
 
+/* 매수/매도 버튼 크기 키움 */
 .btn {
   border: none;
-  border-radius: 4px;
-  padding: 6px 10px;
+  border-radius: 6px;
+  padding: 8px 14px;
+  height: 38px;
   font-weight: 700;
-  font-size: 11px;
+  font-size: 14px;
   cursor: pointer;
   font-family: var(--sans);
   transition: all .15s;
   white-space: nowrap;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn:disabled {
@@ -923,11 +874,11 @@ html, body {
 
 .btn:not(:disabled):hover {
   opacity: 0.9;
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .btn:not(:disabled):active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 .btn-buy {
@@ -941,12 +892,12 @@ html, body {
 }
 
 /* ============================================
-   차트 섹션 (오른쪽, 작음)
+   차트 섹션
 ============================================ */
 .right-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   min-height: 0;
 }
 
@@ -955,11 +906,11 @@ html, body {
   background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
+  min-height: 320px;
 }
 
 .chart-placeholder {
@@ -969,7 +920,7 @@ html, body {
 
 .chart-placeholder p {
   margin: 0;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.6;
 }
 
@@ -979,9 +930,7 @@ html, body {
   position: relative;
 }
 
-canvas {
-  max-height: 100%;
-}
+canvas { max-height: 100%; }
 
 /* ============================================
    애니메이션
@@ -1004,223 +953,84 @@ canvas {
 .flash-danger { animation: flashDanger 1s ease-out; }
 
 /* ============================================
-   태블릿 (1024px 이상)
-============================================ */
-@media (min-width: 1024px) {
-  .market-item {
-    grid-template-columns: auto 1fr 80px 70px;
-    gap: 12px;
-    padding: 14px;
-  }
-
-  .item-emoji {
-    font-size: 26px;
-  }
-
-  .item-name {
-    font-size: 14px;
-  }
-
-  .item-ticker {
-    font-size: 11px;
-  }
-
-  .item-price {
-    font-size: 14px;
-  }
-
-  .item-change {
-    font-size: 12px;
-    min-width: 65px;
-  }
-}
-
-/* ============================================
-   모바일 반응형
+   반응형 디바이스별 대응 (확대 기준 적용)
 ============================================ */
 @media (max-width: 1200px) {
   .trading-area {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
   }
 
   .chart-container {
-    min-height: 250px;
+    min-height: 280px;
   }
 
   .market-item {
-    grid-template-columns: auto 1fr 70px 60px;
-    gap: 8px;
-    padding: 10px;
-  }
-
-  .item-emoji {
-    font-size: 22px;
-  }
-
-  .item-name {
-    font-size: 12px;
-  }
-
-  .item-ticker {
-    font-size: 9px;
-  }
-
-  .item-price {
-    font-size: 12px;
-  }
-
-  .item-change {
-    font-size: 10px;
-    min-width: 55px;
-  }
-
-  .qty-input {
-    width: 40px;
-    height: 24px;
-    font-size: 10px;
-  }
-
-  .btn {
-    padding: 5px 8px;
-    font-size: 10px;
-  }
-
-  .asset-info-card {
-    padding: 14px;
-  }
-
-  .asset-row {
-    font-size: 12px;
-  }
-
-  .asset-value {
-    font-size: 14px;
+    grid-template-columns: auto 1fr 90px 130px;
+    gap: 12px;
+    padding: 14px 16px;
   }
 }
 
 @media (max-width: 768px) {
   .trading-area {
-    grid-template-columns: 1fr;
-    padding: 12px 16px;
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .market-item {
+    grid-template-columns: auto 1fr 80px 120px;
+    padding: 12px;
     gap: 10px;
   }
 
-  .market-item {
-    grid-template-columns: auto 1fr 60px 50px;
-    padding: 10px;
-    gap: 8px;
-  }
-
-  .item-emoji {
-    font-size: 20px;
-  }
-
-  .item-name {
-    font-size: 11px;
-  }
-
-  .item-ticker {
-    font-size: 8px;
-  }
-
-  .item-price {
-    font-size: 11px;
-  }
-
-  .item-change {
-    font-size: 9px;
-    min-width: 50px;
-    padding: 3px 4px;
-  }
+  .item-emoji { font-size: 28px; }
+  .item-name { font-size: 14px; }
+  .item-ticker { font-size: 11px; }
+  .item-price { font-size: 14px; }
+  .item-change { font-size: 12px; min-width: 65px; }
 
   .qty-input {
-    width: 36px;
-    height: 22px;
-    font-size: 9px;
-  }
-
-  .btn {
-    padding: 4px 7px;
-    font-size: 9px;
-  }
-
-  .asset-info-card {
-    padding: 12px;
-  }
-
-  .asset-row {
-    font-size: 11px;
-  }
-
-  .asset-value {
-    font-size: 13px;
-  }
-
-  .chart-container {
-    min-height: 200px;
-  }
-}
-
-@media (max-width: 480px) {
-  .trading-area {
-    grid-template-columns: 1fr;
-    padding: 8px 12px;
-    gap: 8px;
-  }
-
-  .market-item {
-    grid-template-columns: auto 1fr 50px 1fr;
-    padding: 8px;
-    gap: 6px;
-  }
-
-  .item-emoji {
-    font-size: 18px;
-  }
-
-  .item-name {
-    font-size: 10px;
-  }
-
-  .item-ticker {
-    font-size: 7px;
-  }
-
-  .item-price {
-    font-size: 10px;
-  }
-
-  .item-change {
-    font-size: 8px;
-    min-width: 45px;
-    padding: 2px 3px;
-  }
-
-  .qty-input {
-    width: 32px;
-    height: 20px;
-    font-size: 8px;
-  }
-
-  .btn {
-    padding: 3px 6px;
-    font-size: 8px;
-  }
-
-  .asset-info-card {
-    padding: 10px;
-  }
-
-  .asset-row {
-    font-size: 10px;
-  }
-
-  .asset-value {
+    width: 45px;
+    height: 32px;
     font-size: 12px;
   }
 
-  .chart-container {
-    min-height: 180px;
+  .btn {
+    padding: 6px 10px;
+    height: 32px;
+    font-size: 12px;
   }
+
+  .asset-info-card { padding: 16px; }
+  .asset-row { font-size: 13px; }
+  .asset-value { font-size: 16px; }
+}
+
+@media (max-width: 520px) {
+  .market-item {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 
+      "emoji name price"
+      "emoji name change"
+      "controls controls controls";
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .item-emoji { grid-area: emoji; }
+  .item-name-section { grid-area: name; }
+  .item-price { grid-area: price; text-align: right; }
+  .item-change { grid-area: change; justify-self: end; }
+  .item-controls { 
+    grid-area: controls; 
+    width: 100%; 
+    justify-content: flex-end; 
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .qty-input { flex: 1; height: 36px; }
+  .btn { flex: 2; height: 36px; font-size: 13px; }
 }
