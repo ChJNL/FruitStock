@@ -74,7 +74,95 @@ body {
 .toast.visible { transform: translate(-50%, 0); }
 
 /* ============================================
-   뉴스 모달 (중앙 팝업)
+   튜토리얼 모달
+============================================ */
+.tutorial-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 400;
+}
+.tutorial-modal.visible {
+  display: flex;
+}
+.tutorial-modal-content {
+  background: var(--panel-bg);
+  border: 2px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 40px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, .8);
+  animation: slideIn .3s ease-out;
+}
+.tutorial-modal-content h2 {
+  color: var(--gold);
+  font-size: 28px;
+  margin: 0 0 24px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+.tutorial-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.tutorial-item {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.05);
+  border: 1px solid var(--border);
+}
+.tutorial-icon {
+  font-size: 32px;
+  min-width: 40px;
+  text-align: center;
+}
+.tutorial-item h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--gold);
+}
+.tutorial-item p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.tutorial-close-btn {
+  width: 100%;
+  background: var(--gold);
+  color: #1a1200;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.tutorial-close-btn:hover {
+  opacity: .85;
+}
+
+@keyframes slideIn {
+  from { transform: scale(0.9) translateY(-20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ============================================
+   뉴스 모달
 ============================================ */
 .news-modal {
   position: fixed;
@@ -101,10 +189,6 @@ body {
   width: 90%;
   box-shadow: 0 16px 48px rgba(0, 0, 0, .6);
   animation: slideIn .3s ease-out;
-}
-@keyframes slideIn {
-  from { transform: scale(0.9) translateY(-20px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
 }
 .news-modal-icon {
   font-size: 56px;
@@ -282,7 +366,17 @@ body {
 /* ============================================
    차트
 ============================================ */
-.chart-wrap { position: relative; height: 280px; }
+.chart-info {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-wrap {
+  position: relative;
+  height: 280px;
+}
 
 /* ============================================
    시세표
@@ -302,7 +396,22 @@ body {
 .stock-table tbody tr:nth-child(odd)  { background: var(--row-a); }
 .stock-table tbody tr:nth-child(even) { background: var(--row-b); }
 
-.stock-name-cell { display: flex; align-items: center; gap: 10px; }
+.stock-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.stock-name-cell:hover {
+  opacity: 0.7;
+}
+
+.stock-name-cell.delisted {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .stock-emoji { font-size: 20px; }
 .stock-name { font-weight: 700; font-size: 13px; }
 .stock-ticker { font-size: 11px; color: var(--text-dim); }
@@ -319,18 +428,22 @@ body {
 .badge-value     { background: var(--teal-soft);   color: var(--teal); }
 .badge-theme     { background: var(--gold-soft);   color: var(--gold); }
 .badge-growth    { background: rgba(76, 203, 143, 0.14); color: #4ccb8f; }
+.badge-delisted  { background: rgba(200, 50, 50, 0.2); color: #e0483e; }
 
 .price-cell { font-weight: 700; padding: 2px 6px; border-radius: 6px; }
 
 @keyframes flashUp   { from { background-color: rgba(224, 72, 62, .35); } to { background-color: transparent; } }
 @keyframes flashDown { from { background-color: rgba(79, 131, 204, .35); } to { background-color: transparent; } }
+@keyframes flashDanger { from { background-color: rgba(200, 50, 50, .5); } to { background-color: transparent; } }
 .flash-up   { animation: flashUp 1s ease-out; }
 .flash-down { animation: flashDown 1s ease-out; }
+.flash-danger { animation: flashDanger 1s ease-out; }
 
 .change-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
 .change-up   { color: var(--up);   background: var(--up-soft); }
 .change-down { color: var(--down); background: var(--down-soft); }
 .change-flat { color: var(--text-dim); background: rgba(255,255,255,.05); }
+.change-danger { color: #e0483e; background: rgba(200, 50, 50, 0.2); }
 
 .trade-controls { display: flex; gap: 6px; flex-wrap: wrap; }
 .qty-input {
@@ -512,6 +625,14 @@ body {
     padding: 30px 20px;
   }
 
+  .tutorial-modal-content {
+    padding: 30px 20px;
+  }
+
+  .tutorial-modal-content h2 {
+    font-size: 22px;
+  }
+
   .news-modal-icon {
     font-size: 48px;
   }
@@ -607,5 +728,22 @@ body {
 
   .bottom-grid {
     gap: 16px;
+  }
+
+  .tutorial-modal-content {
+    padding: 24px 16px;
+  }
+
+  .tutorial-modal-content h2 {
+    font-size: 18px;
+  }
+
+  .tutorial-item {
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .tutorial-icon {
+    font-size: 28px;
   }
 }
