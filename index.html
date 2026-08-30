@@ -3,33 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🍇 프리미엄 과일 주식 시뮬레이터</title>
+  <title>💼 주식 모의투자 시뮬레이터</title>
 
-  <!-- 브랜드 로고용 디스플레이 폰트 + 가격/타이머용 모노스페이스 폰트 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Chart.js를 CDN으로 불러옵니다. 이 태그가 실행된 뒤에야 전역에 Chart라는
-       이름의 생성자 함수가 생기므로, 반드시 script.js보다 "먼저" 로드돼야 해요. -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- 업적 달성 / 배당 / 이자 알림이 뜨는 토스트 (평소엔 화면 위로 숨어있음) -->
   <div class="toast" id="toast"></div>
+
+  <!-- 뉴스 모달 -->
+  <div class="news-modal" id="newsModal">
+    <div class="news-modal-content">
+      <div class="news-modal-icon">📰</div>
+      <h2>오늘의 뉴스</h2>
+      <p class="news-modal-text" id="newsModalText">뉴스 텍스트</p>
+      <button class="btn news-close-btn" id="newsCloseBtn">확인</button>
+    </div>
+  </div>
 
   <div class="app-shell">
 
-    <!-- ============================================
-         상단 바
-    ============================================ -->
+    <!-- 상단 바 -->
     <header class="top-bar">
       <div class="brand">
-        <p class="brand-eyebrow">PREMIUM FRUIT EXCHANGE</p>
-        <h1>🍇 프리미엄 과일 주식 시뮬레이터</h1>
+        <p class="brand-eyebrow">STOCK SIMULATOR 2024</p>
+        <h1>💼 주식 모의투자</h1>
       </div>
       <div class="day-badge">
         <span class="day-label">DAY</span>
@@ -37,35 +41,20 @@
       </div>
     </header>
 
-    <!-- ============================================
-         타이머 바
-    ============================================ -->
+    <!-- 타이머 바 -->
     <section class="timer-section">
       <div class="timer-labels">
         <span>다음 정산까지</span>
-        <span class="mono" id="timerText">05:00</span>
+        <span class="mono" id="timerText">03:00</span>
       </div>
       <div class="timer-track">
         <div class="timer-fill" id="timerFill"></div>
       </div>
     </section>
 
-    <!-- ============================================
-         오늘의 뉴스 (하루 시작과 동시에 공개됨)
-    ============================================ -->
-    <section class="news-panel" id="newsPanel">
-      <span class="news-icon">📰</span>
-      <div>
-        <p class="news-label">오늘의 뉴스</p>
-        <p class="news-text" id="newsText">첫째 날 시장이 개장했습니다. 행운을 빌어요!</p>
-      </div>
-    </section>
-
     <main class="main-grid">
 
-      <!-- ============================================
-           왼쪽 사이드 컬럼: 자산 / 은행 / 정보상
-      ============================================ -->
+      <!-- 왼쪽 사이드: 자산 정보 -->
       <aside class="side-col">
 
         <div class="panel wallet-panel">
@@ -75,7 +64,7 @@
             <span class="stat-value mono" id="cashValue">0원</span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">순자산 (현금+주식-대출)</span>
+            <span class="stat-label">순자산 (현금+주식)</span>
             <span class="stat-value mono gold-text" id="totalValue">0원</span>
           </div>
           <hr class="divider">
@@ -83,34 +72,18 @@
           <ul class="holdings-list" id="holdingsList"></ul>
         </div>
 
-        <div class="panel bank-panel">
-          <h2>🏦 은행</h2>
-          <div class="stat-row">
-            <span class="stat-label">대출 잔액</span>
-            <span class="stat-value mono" id="loanValue">0원</span>
-          </div>
-          <p class="bank-note">대출 이자는 하루가 끝날 때마다 5%씩 현금에서 빠져나가요.</p>
-          <div class="bank-controls">
-            <input type="number" class="qty-input mono bank-amount-input" id="loanAmount" value="500000" min="10000" step="10000">
-            <button class="btn borrow-btn" id="borrowBtn">대출</button>
-            <button class="btn repay-btn" id="repayBtn">상환</button>
-          </div>
-        </div>
-
-        <div class="panel informant-panel">
-          <h2>🕵️ 어둠의 정보상</h2>
-          <p class="informant-desc">
-            돈을 내면 내일 터질 뉴스에 대한 흐릿한 힌트를 얻을 수 있다는 소문이...
+        <div class="panel hint-panel">
+          <h2>🕵️ 내일의 힌트</h2>
+          <p class="hint-desc">
+            내일 어떤 뉴스가 터질지에 대한 흐릿한 힌트를 얻을 수 있어요.
           </p>
           <p class="hint-text" id="hintText">"아직 정보를 사지 않았어요..."</p>
-          <button class="btn hint-btn" id="hintBtn">정보 구매 (500원)</button>
+          <button class="btn hint-btn" id="hintBtn">정보 구매 (100원)</button>
         </div>
 
       </aside>
 
-      <!-- ============================================
-           오른쪽: 차트 + 실시간 시세표
-      ============================================ -->
+      <!-- 오른쪽: 차트 + 실시간 시세표 -->
       <div class="content-col">
 
         <section class="panel chart-panel">
@@ -142,9 +115,7 @@
       </div>
     </main>
 
-    <!-- ============================================
-         하단: 사치품 상점 + 업적 도감
-    ============================================ -->
+    <!-- 하단 그리드: 상점 + 업적 -->
     <div class="bottom-grid">
       <section class="panel shop-panel">
         <h2>🏙️ 사치품 상점</h2>
@@ -158,13 +129,12 @@
     </div>
 
     <footer class="app-footer">
-      <p>새로고침해도 자산은 그대로 저장돼요 (localStorage)</p>
+      <p>새로고침해도 자산은 저장돼요 (localStorage)</p>
       <button class="reset-btn" id="resetBtn">게임 초기화</button>
     </footer>
 
   </div>
 
-  <!-- JS는 항상 body 맨 아래에서 불러옵니다 (DOM과 Chart.js가 먼저 준비되어야 하므로) -->
   <script src="script.js"></script>
 </body>
 </html>
