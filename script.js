@@ -1,9 +1,5 @@
 /* =====================================================================
-   🍓 과일 주식 모의투자 - 스마트폰 시스템
-   -----------------------------------------------------------------
-   새로운 구조:
-   1. 메인 화면: 헤더 + 타이머/뉴스 바 + 거래 영역
-   2. 스마트폰 모달: 사용법/업적/사치품/자산정보
+   🍓 과일 주식 모의투자 - 메인 스크립트
 ===================================================================== */
 
 /* =====================================================================
@@ -149,10 +145,8 @@ const PRICE_TICK_MS = 10 * 1000;
 const TICKS_PER_DAY = DAY_DURATION_MS / PRICE_TICK_MS;
 const HINT_COST = 100;
 const DIVIDEND_RATE = 0.02;
-const DAILY_PRICE_LIMIT = 0.30;
 const BANKRUPT_THRESHOLD = 100;
 const SAVE_KEY = 'stockSimulatorSave';
-const TUTORIAL_SHOWN_KEY = 'tutorialShown';
 
 const player = {
   cash: START_CASH,
@@ -191,6 +185,10 @@ const dom = {
   chartWrap: document.getElementById('chartWrap'),
   priceChart: document.getElementById('priceChart'),
 
+  // 메인 자산 정보 패널
+  cashValue: document.getElementById('cashValue'),
+  totalAssetValue: document.getElementById('totalAssetValue'),
+
   // 뉴스 모달
   newsModal: document.getElementById('newsModal'),
   newsModalText: document.getElementById('newsModalText'),
@@ -208,7 +206,7 @@ const dom = {
   appShop: document.getElementById('app-shop'),
   appInfo: document.getElementById('app-info'),
 
-  // 전화 앱 내용
+  // 스마트폰 앱 내용
   phoneCash: document.getElementById('phoneCash'),
   phoneTotal: document.getElementById('phoneTotal'),
   phoneHoldings: document.getElementById('phoneHoldings'),
@@ -264,6 +262,7 @@ function computeTotalAssets() {
 
 function commit() {
   renderMarket();
+  renderAssetInfo();
   updateChartDisplay();
   updatePhoneScreen();
   checkAchievements();
@@ -368,15 +367,12 @@ function updatePhoneTime() {
 }
 
 function goToPhoneApp(appName) {
-  // 홈 화면 숨기기
   dom.phoneHome.style.display = 'none';
 
-  // 모든 앱 화면 숨기기
   [dom.appGuide, dom.appAchievement, dom.appShop, dom.appInfo].forEach(el => {
     el.style.display = 'none';
   });
 
-  // 해당 앱 보이기
   if (appName === 'guide') dom.appGuide.style.display = 'flex';
   if (appName === 'achievement') dom.appAchievement.style.display = 'flex';
   if (appName === 'shop') dom.appShop.style.display = 'flex';
@@ -393,6 +389,26 @@ function goToPhoneHome() {
 /* =====================================================================
    렌더링
 ===================================================================== */
+
+function renderAssetInfo() {
+  const total = computeTotalAssets();
+  if (dom.cashValue) dom.cashValue.textContent = formatWon(player.cash);
+  if (dom.totalAssetValue) dom.totalAssetValue.textContent = formatWon(total);
+
+  const owned = stocks.filter((s) => player.holdings[s.id] > 0 && !s.delisted);
+  const holdingsMini = document.getElementById('holdingsMini');
+  
+  if (holdingsMini) {
+    holdingsMini.innerHTML = owned.length === 0
+      ? '<li class="holdings-empty-mini">보유 종목 없음</li>'
+      : owned.map((s) => `
+          <li class="holdings-mini-item">
+            <span>${s.emoji} ${s.name}</span>
+            <span class="mono">${player.holdings[s.id]}주</span>
+          </li>
+        `).join('');
+  }
+}
 
 function renderMarket() {
   dom.dayNumber.textContent = dayCount;
@@ -880,6 +896,7 @@ function init() {
   }
 
   renderMarket();
+  renderAssetInfo();
   updatePhoneScreen();
 
   // 메인 화면 이벤트

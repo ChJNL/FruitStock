@@ -58,7 +58,7 @@
           </div>
         </div>
 
-        <!-- 각 앱 화면 (처음엔 display: none) -->
+        <!-- 각 앱 화면 -->
         
         <!-- 📖 사용법 앱 -->
         <div class="phone-app-screen" id="app-guide" style="display: none;">
@@ -196,27 +196,48 @@
       </button>
     </section>
 
-    <!-- 메인 거래 영역 -->
+    <!-- 메인 거래 영역 (2단 레이아웃) -->
     <main class="trading-area">
 
-      <!-- 좌측: 과일 주식 리스트 -->
-      <div class="market-list-section">
-        <div class="section-header">
-          <h2>📈 시장 정보</h2>
+      <!-- 왼쪽 큼: 자산정보 + 거래 리스트 -->
+      <div class="left-panel">
+        
+        <!-- 자산 정보 카드 -->
+        <div class="asset-info-card">
+          <h3>💰 내 자산</h3>
+          <div class="asset-row">
+            <span>보유 현금</span>
+            <span class="asset-value mono" id="cashValue">0원</span>
+          </div>
+          <div class="asset-row">
+            <span>순자산</span>
+            <span class="asset-value mono gold-text" id="totalAssetValue">0원</span>
+          </div>
+          <hr class="asset-divider">
+          <h4>보유 종목</h4>
+          <ul class="holdings-mini" id="holdingsMini"></ul>
         </div>
-        <div class="market-list" id="marketList">
-          <!-- 동적으로 생성됨 -->
+
+        <!-- 거래 리스트 래퍼 -->
+        <div class="market-list-wrapper">
+          <div class="section-header">
+            <h2>📈 시장 정보</h2>
+          </div>
+          <div class="market-list" id="marketList">
+            <!-- 동적으로 생성됨 -->
+          </div>
         </div>
+
       </div>
 
-      <!-- 우측: 개별 차트 -->
-      <div class="chart-section">
+      <!-- 오른쪽 작음: 개별 차트 -->
+      <div class="right-panel">
         <div class="section-header">
           <h2>📊 상세 차트</h2>
         </div>
         <div class="chart-container">
           <div class="chart-placeholder" id="chartPlaceholder">
-            <p>📍 좌측에서 종목을 선택하면<br>상세 차트가 표시됩니다</p>
+            <p>📍 좌측에서<br>종목을 선택하면<br>차트가 표시됩니다</p>
           </div>
           <div class="chart-wrap" id="chartWrap" style="display: none;">
             <canvas id="priceChart"></canvas>
