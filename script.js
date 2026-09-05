@@ -1,164 +1,135 @@
 /* =====================================================================
-   🍓 과일 주식 모의투자 - 메인 스크립트
+   프리미엄 모의투자 HTS (과일 테마 버전) - script.js
+   -----------------------------------------------------------------
+   전체 흐름:
+   ① 종목/뉴스/업적/상점 데이터 → ② 게임 상태 변수 → ③ 화면 요소 참조
+   → ④ 유틸 함수 → ⑤ 저장/불러오기 → ⑥ 렌더링 → ⑦ 매수/매도
+   → ⑧ 정보상 → ⑨ 상점 → ⑩ 업적/토스트 → ⑪ 차트 → ⑫ 뉴스 모달
+   → ⑬ 하루 진행 & 10초 시세 틱 (+ 밸런스 패치) → ⑭ 디버그 주가 조작
+   → ⑮ 초기화
 ===================================================================== */
 
 /* =====================================================================
-   종목 목록 (과일/디저트 테마)
+   ① 종목 목록 (과일 테마 6개 종목으로 압축)
 ===================================================================== */
 const stocks = [
-  {
-    id: 'apple-mango', ticker: 'AMNG', emoji: '🍎', name: '애플망고',
-    category: '우량주', price: 45000, prevPrice: 45000, dayStartPrice: 45000,
-    tickVolatility: 0.008, dailyDrift: 0.004, todayTickDrift: 0,
-    tags: ['tech'], delisted: false, priceHistory: [45000],
-  },
-  {
-    id: 'strawberry-soft', ticker: 'STRB', emoji: '🍓', name: '딸기소프트',
-    price: 38000, prevPrice: 38000, dayStartPrice: 38000,
-    tickVolatility: 0.010, dailyDrift: 0.005, todayTickDrift: 0,
-    tags: ['tech', 'growth'], delisted: false, priceHistory: [38000],
-  },
-  {
-    id: 'durian-bio', ticker: 'DURB', emoji: '🦔', name: '두리안바이오',
-    price: 28000, prevPrice: 28000, dayStartPrice: 28000,
-    tickVolatility: 0.025, dailyDrift: 0, todayTickDrift: 0,
-    tags: ['biotech'], delisted: false, priceHistory: [28000],
-  },
-  {
-    id: 'mango-tex', ticker: 'MGTX', emoji: '🥭', name: '망고텍스',
-    price: 22000, prevPrice: 22000, dayStartPrice: 22000,
-    tickVolatility: 0.018, dailyDrift: 0.002, todayTickDrift: 0,
-    tags: ['tech'], delisted: false, priceHistory: [22000],
-  },
-  {
-    id: 'cherry-health', ticker: 'CHRY', emoji: '🍒', name: '체리헬스',
-    price: 32000, prevPrice: 32000, dayStartPrice: 32000,
-    tickVolatility: 0.006, dailyDrift: 0.003, todayTickDrift: 0,
-    tags: ['healthcare'], delisted: false, priceHistory: [32000],
-  },
-  {
-    id: 'blueberry-tech', ticker: 'BLUB', emoji: '🫐', name: '블루베리테크',
-    price: 25000, prevPrice: 25000, dayStartPrice: 25000,
-    tickVolatility: 0.010, dailyDrift: 0, todayTickDrift: 0,
-    tags: ['tech'], delisted: false, priceHistory: [25000],
-  },
-  {
-    id: 'grape-dream', ticker: 'GRDM', emoji: '🍇', name: '포도드림',
-    price: 18000, prevPrice: 18000, dayStartPrice: 18000,
-    tickVolatility: 0.015, dailyDrift: 0, todayTickDrift: 0,
-    tags: ['entertainment'], delisted: false, priceHistory: [18000],
-  },
-  {
-    id: 'kiwi-wood', ticker: 'KIWI', emoji: '🥝', name: '키위우드',
-    price: 16000, prevPrice: 16000, dayStartPrice: 16000,
-    tickVolatility: 0.020, dailyDrift: -0.002, todayTickDrift: 0,
-    tags: ['manufacturing'], delisted: false, priceHistory: [16000],
-  },
-  {
-    id: 'orange-food', ticker: 'ORNG', emoji: '🍊', name: '귤푸드',
-    price: 14000, prevPrice: 14000, dayStartPrice: 14000,
-    tickVolatility: 0.012, dailyDrift: 0.003, todayTickDrift: 0,
-    tags: ['food', 'dividend'], delisted: false, priceHistory: [14000],
-  },
-  {
-    id: 'watermelon-ent', ticker: 'WMNT', emoji: '🍉', name: '수박엔터',
-    price: 20000, prevPrice: 20000, dayStartPrice: 20000,
-    tickVolatility: 0.014, dailyDrift: 0.002, todayTickDrift: 0,
-    tags: ['entertainment', 'dividend'], delisted: false, priceHistory: [20000],
-  },
-  {
-    id: 'mandarin-finance', ticker: 'MNDF', emoji: '🍊', name: '귤파이낸스',
-    price: 35000, prevPrice: 35000, dayStartPrice: 35000,
-    tickVolatility: 0.007, dailyDrift: 0.002, todayTickDrift: 0,
-    tags: ['finance'], delisted: false, priceHistory: [35000],
-  },
-  {
-    id: 'mangosteen-fund', ticker: 'MSGF', emoji: '🍃', name: '망고스틴펀드',
-    price: 19000, prevPrice: 19000, dayStartPrice: 19000,
-    tickVolatility: 0.022, dailyDrift: 0, todayTickDrift: 0,
-    tags: ['finance'], delisted: false, priceHistory: [19000],
-  },
+  { id: 'apple-farm', ticker: 'APL', emoji: '🍎', name: '사과 농장',
+    industry: '농업', category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#ff4d4d',
+    price: 1200, prevPrice: 1200, dayStartPrice: 1200,
+    tickVolatility: 0.004, tickCap: 0.02, dailyDrift: 0.005, todayTickDrift: 0, tags: ['farm'] },
+
+  { id: 'banana-dist', ticker: 'BND', emoji: '🍌', name: '바나나 유통',
+    industry: '유통', category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#ffd700',
+    price: 1000, prevPrice: 1000, dayStartPrice: 1000,
+    tickVolatility: 0.005, tickCap: 0.02, dailyDrift: 0.003, todayTickDrift: 0, tags: ['dist'] },
+
+  { id: 'grape-pharma', ticker: 'GRP', emoji: '🍇', name: '포도당 제약',
+    industry: '제약', category: '가치주', badgeClass: 'badge-value', chartColor: '#7fbf7f',
+    price: 700, prevPrice: 700, dayStartPrice: 700,
+    tickVolatility: 0.013, tickCap: 0.03, dailyDrift: 0, todayTickDrift: 0, tags: ['pharma'] },
+
+  { id: 'blueberry-tech', ticker: 'BBT', emoji: '🫐', name: '블루베리 테크',
+    industry: 'IT', category: '가치주', badgeClass: 'badge-value', chartColor: '#6fb1e0',
+    price: 800, prevPrice: 800, dayStartPrice: 800,
+    tickVolatility: 0.012, tickCap: 0.03, dailyDrift: 0.002, todayTickDrift: 0, tags: ['tech'] },
+
+  { id: 'watermelon-enter', ticker: 'WME', emoji: '🍉', name: '수박 엔터',
+    industry: '엔터', category: '테마주', badgeClass: 'badge-theme', chartColor: '#ff8fa3',
+    price: 400, prevPrice: 400, dayStartPrice: 400,
+    tickVolatility: 0.022, tickCap: 0.04, dailyDrift: 0, todayTickDrift: 0, tags: ['entertainment'] },
+
+  { id: 'durian-games', ticker: 'DRG', emoji: '🍈', name: '두리안 게임즈',
+    industry: '게임', category: '작전주', badgeClass: 'badge-manipulated', chartColor: '#8b8f9e',
+    price: 250, prevPrice: 250, dayStartPrice: 250,
+    tickVolatility: 0.032, tickCap: 0.05, dailyDrift: -0.003, todayTickDrift: 0, tags: ['game'] },
 ];
 
 /* =====================================================================
-   뉴스 풀
+   뉴스 이벤트 풀 (과일 테마로 전면 수정)
 ===================================================================== */
 const NEWS_POOL = [
-  { id: 'market-rally', type: 'market', text: '🌍 글로벌 경기 강세, 전 종목 급등', 
-    brief: '전 종목 급등', changeRange: [0.05, 0.12] },
-  { id: 'market-crash', type: 'market', text: '📉 금리 인상 우려, 전 종목 약세',
-    brief: '전 종목 약세', changeRange: [-0.12, -0.05] },
-  { id: 'tech-boom', type: 'tag', tag: 'tech', text: '💻 AI 산업 호황, 테크주 급등',
-    brief: 'AI 산업 호황', changeRange: [0.08, 0.18] },
-  { id: 'tech-slowdown', type: 'tag', tag: 'tech', text: '💻 반도체 수급 악화, 테크주 조정',
-    brief: '반도체 수급 악화', changeRange: [-0.10, -0.03] },
-  { id: 'biotech-approval', type: 'tag', tag: 'biotech', text: '🧬 신약 임상 성공, 바이오 폭등',
-    brief: '신약 임상 성공', changeRange: [0.15, 0.35] },
-  { id: 'biotech-scandal', type: 'tag', tag: 'biotech', text: '🧬 임상 부작용, 바이오 급락',
-    brief: '임상 부작용', changeRange: [-0.25, -0.08] },
-  { id: 'healthcare-boom', type: 'tag', tag: 'healthcare', text: '🏥 의료 개혁법 시행, 헬스주 강세',
-    brief: '의료 개혁법', changeRange: [0.08, 0.15] },
-  { id: 'food-inflation', type: 'tag', tag: 'food', text: '🌾 농산물 가격 상승, 식품주 강세',
-    brief: '농산물 가격 상승', changeRange: [0.04, 0.12] },
-  { id: 'entertainment-hit', type: 'tag', tag: 'entertainment', text: '🎬 영화 대박, 엔터주 급등',
-    brief: '영화 대박', changeRange: [0.10, 0.25] },
-  { id: 'finance-rally', type: 'tag', tag: 'finance', text: '🏦 금리 인상, 금융주 수혜',
-    brief: '금리 인상 수혜', changeRange: [0.06, 0.15] },
-  { id: 'durian-jackpot', type: 'stock', targetId: 'durian-bio', text: '🚀 두리안바이오, 신약 승인! 주가 폭등',
-    brief: '두리안 신약 승인', changeRange: [2.0, 6.0] },
-  { id: 'strawberry-scandal', type: 'stock', targetId: 'strawberry-soft', text: '📰 딸기소프트, 보안 사고 발생',
-    brief: '딸기소프트 보안 사고', changeRange: [-0.15, -0.05] },
+  { id: 'market-boom', type: 'market', text: '🌍 과일 시장 대풍년, 전 종목 동반 강세',
+    hint: '시장 전체에 달콤한 과일 향기가 가득할 거란 소문이...', changeRange: [0.02, 0.05] },
+  { id: 'market-crash', type: 'market', text: '📉 이상 기후 발생, 과일 시장 전체 한파',
+    hint: '과일 시장에 서늘한 바람이 불 거란 소문이...', changeRange: [-0.05, -0.02] },
+
+  { id: 'farm-good', type: 'tag', tag: 'farm', text: '🍎 꿀사과 당도 역대 최고치, 농업주 강세',
+    hint: '농장 쪽에 대풍년 소식이 있을 거란 소문이...', changeRange: [0.03, 0.07] },
+  { id: 'farm-bad', type: 'tag', tag: 'farm', text: '🍎 과수 화상병 우려 확산, 농업주 약세',
+    hint: '농장에 전염병이 돌 거란 소문이...', changeRange: [-0.06, -0.02] },
+
+  { id: 'dist-good', type: 'tag', tag: 'dist', text: '🍌 당일 로켓 배송 도입, 유통주 강세',
+    hint: '유통망이 엄청나게 개선될 거란 소문이...', changeRange: [0.02, 0.06] },
+  { id: 'dist-bad', type: 'tag', tag: 'dist', text: '🍌 화물 연대 파업, 과일 유통 차질',
+    hint: '물류 쪽에 파업이 일어날 거란 소문이...', changeRange: [-0.05, -0.02] },
+
+  { id: 'pharma-good', type: 'tag', tag: 'pharma', text: '🍇 포도당 추출 신약 특허, 제약주 강세',
+    hint: '제약업계에 반가운 소식이 있을 거란 소문이...', changeRange: [0.05, 0.1] },
+  { id: 'pharma-bad', type: 'tag', tag: 'pharma', text: '🍇 포도당 영양제 부작용 논란, 제약주 약세',
+    hint: '제약업계에 걱정스러운 소식이 있을 거란 소문이...', changeRange: [-0.08, -0.04] },
+
+  { id: 'tech-boom', type: 'tag', tag: 'tech', text: '🫐 AI 과일 신선도 판독기 대박, 테크주 강세',
+    hint: 'IT 업종 쪽에서 혁신적인 기술이 나올 거란 소문이...', changeRange: [0.04, 0.08] },
+  { id: 'tech-crash', type: 'tag', tag: 'tech', text: '🫐 스마트팜 서버 다운 사태, 테크주 약세',
+    hint: 'IT 업종 쪽에 안 좋은 소식이 있을 거란 소문이...', changeRange: [-0.07, -0.03] },
+
+  { id: 'ent-hit', type: 'tag', tag: 'entertainment', text: '🍉 수박 먹방 챌린지 전세계 유행, 엔터주 급등',
+    hint: '엔터업계에서 틱톡 대박 소식이 터질 거란 소문이...', changeRange: [0.1, 0.22] },
+  { id: 'ent-flop', type: 'tag', tag: 'entertainment', text: '🍉 소속 인플루언서 뒷광고 논란, 엔터주 급락',
+    hint: '엔터업계에서 시끄러운 잡음이 들릴 거란 소문이...', changeRange: [-0.18, -0.08] },
+
+  { id: 'game-jackpot', type: 'tag', tag: 'game', text: '🍈 신작 "두리안 키우기" 글로벌 히트!',
+    hint: '게임업계에서 신작 대박 소식이 있을 거란 소문이...', changeRange: [0.15, 0.28] },
+  { id: 'game-flop', type: 'tag', tag: 'game', text: '🍈 두리안 게임즈, 심각한 버그로 환불 사태',
+    hint: '게임업계에서 흥행 참패 소식이 있을 거란 소문이...', changeRange: [-0.25, -0.12] },
 ];
 
 /* =====================================================================
-   업적 & 상점
+   업적 & 사치품 상점
 ===================================================================== */
 const ACHIEVEMENTS = [
-  { id: 'first-buy', emoji: '🌱', name: '첫 투자', desc: '생애 첫 주식을 매수했다',
-    check: (s) => s.everBought },
-  { id: 'first-sell', emoji: '💵', name: '첫 수익 실현', desc: '생애 첫 매도를 완료했다',
-    check: (s) => s.everSold },
-  { id: 'millionaire', emoji: '👑', name: '천만 자산가', desc: '순자산이 1천만 원을 넘었다',
-    check: (s) => s.totalAssets >= 10000000 },
-  { id: 'trader', emoji: '💎', name: '활동적 투자자', desc: '한 종목을 10회 이상 거래했다',
-    check: (s) => s.tradeCount >= 10 },
-  { id: 'survivor-5', emoji: '📅', name: '1주일 생존', desc: '5일 동안 시장에서 살아남았다',
-    check: (s) => s.dayCount >= 5 },
-  { id: 'collector', emoji: '🏆', name: '모든 걸 가졌다', desc: '상점의 모든 아이템을 구매했다',
-    check: (s) => s.ownedItemsCount >= SHOP_ITEMS.length },
+  { id: 'first-buy', emoji: '🌱', name: '첫 과일 바구니', desc: '생애 첫 과일 주식을 매수했다', check: (s) => s.everBought },
+  { id: 'first-sell', emoji: '💵', name: '첫 수익 실현', desc: '생애 첫 매도를 완료했다', check: (s) => s.everSold },
+  { id: 'bankrupt', emoji: '💀', name: '썩은 과일', desc: '현금이 마이너스가 되었다', check: (s) => s.cash < 0 },
+  { id: 'rich-10k', emoji: '👑', name: '과일 재벌', desc: '총자산이 10,000원을 넘었다', check: (s) => s.totalAssets >= 10000 },
+  { id: 'durian-madness', emoji: '🍈', name: '두리안의 기적', desc: '두리안 게임즈 주가가 900원을 넘었다', check: (s) => s.durianPrice >= 900 },
+  { id: 'luxury-owner', emoji: '💎', name: '플렉스의 시작', desc: '사치품을 하나 이상 구매했다', check: (s) => s.ownedItemsCount >= 1 },
+  { id: 'collector', emoji: '🏆', name: '모든 걸 가졌다', desc: '상점의 모든 자산을 구매했다', check: (s) => s.ownedItemsCount >= SHOP_ITEMS_COUNT },
+  { id: 'survivor-10', emoji: '📅', name: '베테랑 상인', desc: '10일 동안 과일 시장에서 살아남았다', check: (s) => s.dayCount >= 10 },
 ];
 
 const SHOP_ITEMS = [
-  { id: 'luxury-watch', emoji: '⌚', name: '명품 시계', price: 5000000, desc: '손목 위의 자산 증명서' },
-  { id: 'sports-car', emoji: '🏎️', name: '슈퍼카', price: 10000000, desc: '질주 본능을 채워줄 스피드' },
-  { id: 'apartment', emoji: '🏢', name: '강남 오피스텔', price: 20000000, desc: '도시 한복판의 부동산' },
-  { id: 'yacht', emoji: '🛥️', name: '개인 요트', price: 50000000, desc: '주말은 바다 위에서' },
-  { id: 'private-jet', emoji: '✈️', name: '프라이빗 제트', price: 100000000, desc: '세계 어디로든 한 번에' },
+  { id: 'my-car', emoji: '🚗', name: '과일 배달 트럭', price: 200, desc: '배달의 시작, 뿌듯함이 두 배' },
+  { id: 'watch', emoji: '⌚', name: '명품 시계', price: 500, desc: '손목 위의 자산 증명서' },
+  { id: 'sports-car', emoji: '🏎️', name: '스포츠카', price: 1500, desc: '질주 본능을 채워줄 스피드' },
+  { id: 'yacht', emoji: '🛥️', name: '요트', price: 3000, desc: '주말은 바다 위에서' },
+  { id: 'penthouse', emoji: '🏙️', name: '농장 펜트하우스', price: 8000, desc: '과수원 전체가 내려다보이는 집' },
 ];
+const SHOP_ITEMS_COUNT = SHOP_ITEMS.length;
 
 /* =====================================================================
-   상수 & 상태
+   ② 게임 상태 변수 & 상수
 ===================================================================== */
-const START_CASH = 100000;
+const START_CASH = 1000;
 const DAY_DURATION_MS = 3 * 60 * 1000;
 const PRICE_TICK_MS = 10 * 1000;
 const TICKS_PER_DAY = DAY_DURATION_MS / PRICE_TICK_MS;
-const HINT_COST = 100;
-const DIVIDEND_RATE = 0.02;
-const BANKRUPT_THRESHOLD = 100;
-const SAVE_KEY = 'stockSimulatorSave';
+const DAY_PRICE_LIMIT = 0.3;
+const HINT_COST = 50;
+const DIVIDEND_RATE = 0.01;
+const SAVE_KEY = 'stockSimPremiumSaveV5'; // 충돌 방지를 위해 V5로 올림
 
 const player = {
   cash: START_CASH,
-  holdings: {},
+  holdings: {
+    'apple-farm': 0, 'banana-dist': 0, 'grape-pharma': 0,
+    'blueberry-tech': 0, 'watermelon-enter': 0, 'durian-games': 0
+  },
   ownedItems: [],
   unlockedAchievements: [],
   everBought: false,
   everSold: false,
-  tradeCount: 0,
 };
-
-stocks.forEach((s) => { player.holdings[s.id] = 0; });
 
 let dayCount = 1;
 let dayEndAt = Date.now() + DAY_DURATION_MS;
@@ -168,78 +139,42 @@ let tomorrowsNews = pickRandomNews();
 let tickIndexToday = 0;
 let lastPriceTickElapsed = 0;
 let priceChart = null;
-let selectedStockId = null;
-let bankruptcyWarnings = {};
 
 /* =====================================================================
-   DOM 요소
+   ③ 화면 요소 참조
 ===================================================================== */
 const dom = {
-  // 메인 영역
   dayNumber: document.getElementById('dayNumber'),
   timerText: document.getElementById('timerText'),
   timerFill: document.getElementById('timerFill'),
-  newsBrief: document.getElementById('newsBrief'),
-  marketList: document.getElementById('marketList'),
-  chartPlaceholder: document.getElementById('chartPlaceholder'),
-  chartWrap: document.getElementById('chartWrap'),
-  priceChart: document.getElementById('priceChart'),
-
-  // 메인 자산 정보 패널
+  newsText: document.getElementById('newsText'),
   cashValue: document.getElementById('cashValue'),
-  totalAssetValue: document.getElementById('totalAssetValue'),
-
-  // 뉴스 모달
-  newsModal: document.getElementById('newsModal'),
-  newsModalText: document.getElementById('newsModalText'),
-  newsCloseBtn: document.getElementById('newsCloseBtn'),
-
-  // 스마트폰 모달
-  phoneModal: document.getElementById('phoneModal'),
-  phoneOpenBtn: document.getElementById('phoneOpenBtn'),
-  phoneCloseBtn: document.getElementById('phoneCloseBtn'),
-  phoneContent: document.getElementById('phoneContent'),
-  phoneHome: document.getElementById('phoneHome'),
-  phoneTime: document.getElementById('phoneTime'),
-  appGuide: document.getElementById('app-guide'),
-  appAchievement: document.getElementById('app-achievement'),
-  appShop: document.getElementById('app-shop'),
-  appInfo: document.getElementById('app-info'),
-
-  // 스마트폰 앱 내용
-  phoneCash: document.getElementById('phoneCash'),
-  phoneTotal: document.getElementById('phoneTotal'),
-  phoneHoldings: document.getElementById('phoneHoldings'),
-  phoneHintText: document.getElementById('phoneHintText'),
-  phoneBuyHintBtn: document.getElementById('phoneBuyHintBtn'),
-  phoneResetBtn: document.getElementById('phoneResetBtn'),
-  phoneAchvGrid: document.getElementById('phoneAchvGrid'),
-  phoneShopGrid: document.getElementById('phoneShopGrid'),
-
-  // 토스트
+  totalValue: document.getElementById('totalValue'),
+  holdingsList: document.getElementById('holdingsList'),
+  hintText: document.getElementById('hintText'),
+  hintBtn: document.getElementById('hintBtn'),
+  stockTableBody: document.getElementById('stockTableBody'),
+  shopGrid: document.getElementById('shopGrid'),
+  achvGrid: document.getElementById('achvGrid'),
   toast: document.getElementById('toast'),
+  resetBtn: document.getElementById('resetBtn'),
+  modalOverlay: document.getElementById('newsModalOverlay'),
+  modalDayLabel: document.getElementById('modalDayLabel'),
+  modalNewsText: document.getElementById('modalNewsText'),
+  modalConfirmBtn: document.getElementById('modalConfirmBtn'),
+  debugList: document.getElementById('debugList'),
 };
 
 /* =====================================================================
-   유틸리티 함수
+   ④ 유틸 함수
 ===================================================================== */
-
-function formatWon(amount) {
-  return `${Math.round(amount).toLocaleString('ko-KR')}원`;
-}
-
+function formatWon(amount) { return `${Math.round(amount).toLocaleString('ko-KR')}원`; }
 function formatPercent(ratio) {
   const sign = ratio > 0 ? '+' : '';
   return `${sign}${(ratio * 100).toFixed(1)}%`;
 }
-
-function randomFloat(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-function pickRandomNews() {
-  return NEWS_POOL[Math.floor(Math.random() * NEWS_POOL.length)];
-}
+function randomFloat(min, max) { return Math.random() * (max - min) + min; }
+function pickRandomNews() { return NEWS_POOL[Math.floor(Math.random() * NEWS_POOL.length)]; }
 
 function newsAffectsStock(news, stock) {
   if (news.type === 'market') return true;
@@ -248,31 +183,22 @@ function newsAffectsStock(news, stock) {
   return false;
 }
 
-function findStock(stockId) {
-  return stocks.find((s) => s.id === stockId);
-}
+function findStock(stockId) { return stocks.find((s) => s.id === stockId); }
 
 function computeTotalAssets() {
-  const stockValue = stocks.reduce((sum, s) => {
-    if (!s.delisted) sum += s.price * player.holdings[s.id];
-    return sum;
-  }, 0);
+  const stockValue = stocks.reduce((sum, s) => sum + s.price * player.holdings[s.id], 0);
   return player.cash + stockValue;
 }
 
 function commit() {
-  renderMarket();
-  renderAssetInfo();
-  updateChartDisplay();
-  updatePhoneScreen();
+  renderAll();
   checkAchievements();
   saveGame();
 }
 
 /* =====================================================================
-   저장 / 불러오기
+   ⑤ 저장 / 불러오기 (localStorage)
 ===================================================================== */
-
 function saveGame() {
   const saveData = {
     cash: player.cash,
@@ -281,16 +207,12 @@ function saveGame() {
     unlockedAchievements: player.unlockedAchievements,
     everBought: player.everBought,
     everSold: player.everSold,
-    tradeCount: player.tradeCount,
-    dayCount,
-    dayEndAt,
-    hintPurchasedToday,
+    dayCount, dayEndAt, hintPurchasedToday,
     todaysNewsId: todaysNews.id,
     tomorrowsNewsId: tomorrowsNews.id,
     stocks: stocks.map((s) => ({
-      id: s.id, price: s.price, prevPrice: s.prevPrice, dayStartPrice: s.dayStartPrice,
-      todayTickDrift: s.todayTickDrift, delisted: s.delisted,
-      priceHistory: s.priceHistory.slice(-TICKS_PER_DAY),
+      id: s.id, price: s.price, prevPrice: s.prevPrice,
+      dayStartPrice: s.dayStartPrice, todayTickDrift: s.todayTickDrift,
     })),
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
@@ -308,7 +230,6 @@ function loadGame() {
   player.unlockedAchievements = data.unlockedAchievements;
   player.everBought = data.everBought;
   player.everSold = data.everSold;
-  player.tradeCount = data.tradeCount || 0;
 
   dayCount = data.dayCount;
   dayEndAt = data.dayEndAt;
@@ -324,8 +245,6 @@ function loadGame() {
       stock.prevPrice = saved.prevPrice;
       stock.dayStartPrice = saved.dayStartPrice;
       stock.todayTickDrift = saved.todayTickDrift;
-      stock.delisted = saved.delisted;
-      stock.priceHistory = saved.priceHistory || [saved.price];
     }
   });
 
@@ -347,358 +266,230 @@ function resetGame() {
 }
 
 /* =====================================================================
-   스마트폰 모달 관리
+   ⑥ 렌더링
 ===================================================================== */
+function renderDayBadge() { dom.dayNumber.textContent = dayCount; }
+function renderNews() { dom.newsText.textContent = todaysNews.text; }
 
-function openPhone() {
-  dom.phoneModal.classList.add('visible');
-  updatePhoneTime();
-}
+function renderWallet() {
+  dom.cashValue.textContent = formatWon(player.cash);
+  dom.totalValue.textContent = formatWon(computeTotalAssets());
 
-function closePhone() {
-  dom.phoneModal.classList.remove('visible');
-}
-
-function updatePhoneTime() {
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2, '0');
-  const m = String(now.getMinutes()).padStart(2, '0');
-  dom.phoneTime.textContent = `${h}:${m}`;
-}
-
-function goToPhoneApp(appName) {
-  dom.phoneHome.style.display = 'none';
-
-  [dom.appGuide, dom.appAchievement, dom.appShop, dom.appInfo].forEach(el => {
-    el.style.display = 'none';
-  });
-
-  if (appName === 'guide') dom.appGuide.style.display = 'flex';
-  if (appName === 'achievement') dom.appAchievement.style.display = 'flex';
-  if (appName === 'shop') dom.appShop.style.display = 'flex';
-  if (appName === 'info') dom.appInfo.style.display = 'flex';
-}
-
-function goToPhoneHome() {
-  [dom.appGuide, dom.appAchievement, dom.appShop, dom.appInfo].forEach(el => {
-    el.style.display = 'none';
-  });
-  dom.phoneHome.style.display = 'grid';
-}
-
-/* =====================================================================
-   렌더링
-===================================================================== */
-
-function renderAssetInfo() {
-  const total = computeTotalAssets();
-  if (dom.cashValue) dom.cashValue.textContent = formatWon(player.cash);
-  if (dom.totalAssetValue) dom.totalAssetValue.textContent = formatWon(total);
-
-  const owned = stocks.filter((s) => player.holdings[s.id] > 0 && !s.delisted);
-  const holdingsMini = document.getElementById('holdingsMini');
-  
-  if (holdingsMini) {
-    holdingsMini.innerHTML = owned.length === 0
-      ? '<li class="holdings-empty-mini">보유 종목 없음</li>'
-      : owned.map((s) => `
-          <li class="holdings-mini-item">
-            <span>${s.emoji} ${s.name}</span>
-            <span class="mono">${player.holdings[s.id]}주</span>
-          </li>
-        `).join('');
-  }
+  const owned = stocks.filter((s) => player.holdings[s.id] > 0);
+  dom.holdingsList.innerHTML = owned.length === 0
+    ? '<li class="holding-empty">아직 보유한 종목이 없어요</li>'
+    : owned.map((stock) => `
+        <li class="holding-row">
+          <span>${stock.emoji} ${stock.name}</span>
+          <span class="mono">${player.holdings[stock.id]}주</span>
+        </li>
+      `).join('');
 }
 
 function renderMarket() {
-  dom.dayNumber.textContent = dayCount;
-  dom.newsBrief.textContent = todaysNews.brief || todaysNews.text;
+  const savedQty = {};
+  stocks.forEach((s) => {
+    const el = document.getElementById(`qty-${s.id}`);
+    if (el) savedQty[s.id] = el.value;
+  });
 
-  dom.marketList.innerHTML = stocks
-    .filter((s) => !s.delisted)
-    .map((stock) => {
-      const diff = stock.price - stock.prevPrice;
-      const ratio = stock.prevPrice ? diff / stock.prevPrice : 0;
-      const isUp = diff > 0;
-      const isDown = diff < 0;
-      const isBankrupt = stock.price <= BANKRUPT_THRESHOLD;
+  dom.stockTableBody.innerHTML = stocks.map((stock) => {
+    const diff = stock.price - stock.prevPrice;
+    const ratio = stock.prevPrice ? diff / stock.prevPrice : 0;
 
-      let changeClass = '';
-      let changeText = '';
-      if (isBankrupt) {
-        changeClass = 'danger';
-        changeText = '💀위험';
-      } else {
-        changeClass = isUp ? 'up' : isDown ? 'down' : 'flat';
-        changeText = (isUp ? '▲' : isDown ? '▼' : '-') + ' ' + formatPercent(ratio);
-      }
+    const isUp = diff > 0;
+    const isDown = diff < 0;
+    const flashClass = isUp ? 'flash-up' : isDown ? 'flash-down' : '';
+    const changeClass = isUp ? 'change-up' : isDown ? 'change-down' : 'change-flat';
+    const arrow = isUp ? '▲' : isDown ? '▼' : '-';
 
-      const canBuy = player.cash >= stock.price && !isBankrupt;
-      const canSell = player.holdings[stock.id] > 0;
+    const upperLimit = Math.round(stock.dayStartPrice * (1 + DAY_PRICE_LIMIT));
+    const lowerLimit = Math.round(stock.dayStartPrice * (1 - DAY_PRICE_LIMIT));
+    let limitTag = '';
+    if (stock.price >= upperLimit) limitTag = '<span class="limit-tag limit-upper">상한가</span>';
+    else if (stock.price <= lowerLimit) limitTag = '<span class="limit-tag limit-lower">하한가</span>';
 
-      return `
-        <div class="market-item ${selectedStockId === stock.id ? 'selected' : ''}" data-stock-id="${stock.id}">
-          <div class="item-name-section">
-            <span class="item-emoji">${stock.emoji}</span>
-            <div class="item-name-text">
-              <div class="item-name">${stock.name}</div>
-              <div class="item-ticker">${stock.ticker}</div>
+    const canBuy = player.cash >= stock.price;
+    const canSell = player.holdings[stock.id] > 0;
+
+    return `
+      <tr>
+        <td class="cell-name" data-label="종목">
+          <div class="stock-name-cell">
+            <span class="stock-emoji">${stock.emoji}</span>
+            <div>
+              <div class="stock-name">${stock.name}</div>
+              <div class="stock-ticker mono">${stock.industry} · ${stock.ticker}</div>
             </div>
           </div>
-          <div class="item-price">${stock.price.toLocaleString()}</div>
-          <div class="item-change ${changeClass}">${changeText}</div>
-          <div class="item-controls">
-            <input type="number" class="qty-input" id="qty-${stock.id}" value="1" min="1">
-            <button class="btn btn-buy" data-action="buy" data-id="${stock.id}" ${canBuy ? '' : 'disabled'}>매수</button>
-            <button class="btn btn-sell" data-action="sell" data-id="${stock.id}" ${canSell ? '' : 'disabled'}>매도</button>
+        </td>
+        <td data-label="구분"><span class="badge ${stock.badgeClass}">${stock.category}</span></td>
+        <td data-label="현재가" class="mono price-cell ${flashClass}">${stock.price.toLocaleString()}원 ${limitTag}</td>
+        <td data-label="등락"><span class="change-badge ${changeClass}">${arrow} ${formatPercent(ratio)}</span></td>
+        <td data-label="보유" class="mono">${player.holdings[stock.id]}주</td>
+        <td class="cell-trade" data-label="거래">
+          <div class="trade-controls">
+            <input type="number" class="qty-input mono" id="qty-${stock.id}" value="1" min="1">
+            <button class="btn buy-btn" data-action="buy" data-id="${stock.id}" ${canBuy ? '' : 'disabled'}>매수</button>
+            <button class="btn sell-btn" data-action="sell" data-id="${stock.id}" ${canSell ? '' : 'disabled'}>매도</button>
           </div>
-        </div>
-      `;
-    })
-    .join('');
-}
-
-function updatePhoneScreen() {
-  const total = computeTotalAssets();
-  dom.phoneCash.textContent = formatWon(player.cash);
-  dom.phoneTotal.textContent = formatWon(total);
-
-  const owned = stocks.filter((s) => player.holdings[s.id] > 0 && !s.delisted);
-  dom.phoneHoldings.innerHTML = owned.length === 0
-    ? '<li class="holdings-empty">보유 종목 없음</li>'
-    : owned.map((s) => `
-        <li class="holdings-item">
-          <span>${s.emoji} ${s.name}</span>
-          <span class="mono">${player.holdings[s.id]}주</span>
-        </li>
-      `).join('');
-
-  dom.phoneHintText.textContent = hintPurchasedToday
-    ? `"${tomorrowsNews.text}"`
-    : '"아직 정보를 사지 않았어요..."';
-  dom.phoneBuyHintBtn.disabled = hintPurchasedToday || player.cash < HINT_COST;
-  dom.phoneBuyHintBtn.textContent = hintPurchasedToday ? '오늘은 이미 구매함' : `구매`;
-
-  // 업적 렌더링
-  dom.phoneAchvGrid.innerHTML = ACHIEVEMENTS.map((ach) => {
-    const unlocked = player.unlockedAchievements.includes(ach.id);
-    return `
-      <div class="phone-achv-item ${unlocked ? 'unlocked' : 'locked'}">
-        <div class="achv-emoji">${ach.emoji}</div>
-        <div class="achv-name">${ach.name}</div>
-        <div class="achv-desc">${unlocked ? ach.desc : '???'}</div>
-      </div>
+        </td>
+      </tr>
     `;
   }).join('');
 
-  // 상점 렌더링
-  dom.phoneShopGrid.innerHTML = SHOP_ITEMS.map((item) => {
+  stocks.forEach((s) => {
+    const el = document.getElementById(`qty-${s.id}`);
+    if (el && savedQty[s.id] !== undefined) el.value = savedQty[s.id];
+  });
+}
+
+function renderShop() {
+  dom.shopGrid.innerHTML = SHOP_ITEMS.map((item) => {
     const owned = player.ownedItems.includes(item.id);
     const canBuy = !owned && player.cash >= item.price;
     return `
-      <div class="phone-shop-item ${owned ? 'owned' : ''}">
-        <div class="shop-emoji">${item.emoji}</div>
-        <div class="shop-name">${item.name}</div>
-        <div class="shop-price">${formatWon(item.price)}</div>
+      <div class="shop-item ${owned ? 'owned' : 'locked'}">
+        <span class="item-emoji">${item.emoji}</span>
+        <div class="item-name">${item.name}</div>
+        <div class="item-price mono">${formatWon(item.price)}</div>
         ${owned
-          ? '<div class="owned-tag">✓ 보유중</div>'
-          : `<button class="buy-shop-btn" data-item="${item.id}" ${canBuy ? '' : 'disabled'}>구매</button>`}
+          ? '<span class="owned-tag">✓ 보유중</span>'
+          : `<button class="btn buy-item-btn" data-item="${item.id}" ${canBuy ? '' : 'disabled'}>구매</button>`}
       </div>
     `;
   }).join('');
 }
 
-function initChart() {
-  selectedStockId = null;
-  dom.chartWrap.style.display = 'none';
-  dom.chartPlaceholder.style.display = 'flex';
+function renderAchievements() {
+  dom.achvGrid.innerHTML = ACHIEVEMENTS.map((ach) => {
+    const unlocked = player.unlockedAchievements.includes(ach.id);
+    return `
+      <div class="achv-item ${unlocked ? 'unlocked' : 'locked'}">
+        <span class="item-emoji">${ach.emoji}</span>
+        <div class="item-name">${ach.name}</div>
+        <div class="item-desc">${unlocked ? ach.desc : '???'}</div>
+      </div>
+    `;
+  }).join('');
 }
 
-function updateChartDisplay() {
-  if (!selectedStockId) {
-    dom.chartWrap.style.display = 'none';
-    dom.chartPlaceholder.style.display = 'flex';
-    return;
-  }
+function renderHint() {
+  dom.hintBtn.disabled = hintPurchasedToday || player.cash < HINT_COST;
+  dom.hintBtn.textContent = hintPurchasedToday ? '오늘은 이미 정보를 샀어요' : `정보 구매 (${HINT_COST}원)`;
+  dom.hintText.textContent = hintPurchasedToday ? `"${tomorrowsNews.hint}"` : '"아직 정보를 사지 않았어요..."';
+}
 
-  const stock = findStock(selectedStockId);
-  if (!stock || stock.delisted) {
-    selectedStockId = null;
-    dom.chartWrap.style.display = 'none';
-    dom.chartPlaceholder.style.display = 'flex';
-    return;
-  }
-
-  dom.chartPlaceholder.style.display = 'none';
-  dom.chartWrap.style.display = 'block';
-
-  const isUp = stock.price > stock.dayStartPrice;
-  const lineColor = isUp ? '#e0483e' : '#4f83cc';
-
-  if (!priceChart) {
-    const ctx = dom.priceChart.getContext('2d');
-    priceChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: `${stock.emoji} ${stock.name}`,
-          data: [],
-          borderColor: lineColor,
-          backgroundColor: 'transparent',
-          tension: 0.3,
-          pointRadius: 0,
-          borderWidth: 3,
-          fill: false,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        scales: {
-          x: {
-            ticks: { color: '#8b8f9e', maxRotation: 0, font: { size: 10 } },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-          },
-          y: {
-            ticks: {
-              color: '#8b8f9e',
-              callback: (v) => `${v.toLocaleString()}원`,
-              font: { size: 10 },
-            },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-          },
-        },
-        plugins: {
-          legend: {
-            labels: { color: '#c7c9d1', boxWidth: 10, font: { size: 11 } },
-          },
-        },
-      },
-    });
-  }
-
-  priceChart.data.labels = [];
-  priceChart.data.datasets[0].data = [];
-  priceChart.data.datasets[0].borderColor = lineColor;
-
-  stock.priceHistory.forEach((price, index) => {
-    priceChart.data.labels.push(`${index * 10}s`);
-    priceChart.data.datasets[0].data.push(price);
+function renderDebugPanel() {
+  const savedInputs = {};
+  stocks.forEach((s) => {
+    const el = document.getElementById(`debugPrice-${s.id}`);
+    if (el) savedInputs[s.id] = el.value;
   });
 
-  priceChart.update();
+  dom.debugList.innerHTML = stocks.map((stock) => `
+    <div class="debug-row">
+      <div class="debug-name">${stock.emoji} ${stock.name}</div>
+      <div class="debug-price mono">${stock.price.toLocaleString()}원</div>
+      <div class="debug-controls">
+        <button class="btn debug-pump-btn" data-debug-action="pump" data-id="${stock.id}">🚀 +50%</button>
+        <button class="btn debug-dump-btn" data-debug-action="dump" data-id="${stock.id}">📉 -50%</button>
+        <input type="number" class="qty-input mono debug-input" id="debugPrice-${stock.id}" placeholder="직접입력" min="100">
+        <button class="btn debug-apply-btn" data-debug-action="set" data-id="${stock.id}">적용</button>
+      </div>
+    </div>
+  `).join('');
+
+  stocks.forEach((s) => {
+    const el = document.getElementById(`debugPrice-${s.id}`);
+    if (el && savedInputs[s.id] !== undefined) el.value = savedInputs[s.id];
+  });
+}
+
+function renderAll() {
+  renderDayBadge();
+  renderNews();
+  renderWallet();
+  renderMarket();
+  renderShop();
+  renderAchievements();
+  renderHint();
+  renderDebugPanel();
 }
 
 /* =====================================================================
-   거래
+   ⑦ 매수 / 매도
 ===================================================================== */
-
 function buyStock(stockId, qty) {
   const stock = findStock(stockId);
-
-  if (stock.delisted) {
-    alert('상장폐지된 종목입니다!');
-    return;
-  }
-
-  if (stock.price <= BANKRUPT_THRESHOLD) {
-    alert('부도 위험 종목은 매수 불가!');
-    return;
-  }
-
   const cost = stock.price * qty;
-  if (player.cash < cost) {
-    alert('현금 부족!');
-    return;
-  }
-
+  if (player.cash < cost) { alert('현금이 부족해요! 🥲'); return; }
   player.cash -= cost;
   player.holdings[stockId] += qty;
   player.everBought = true;
-  player.tradeCount += 1;
   commit();
 }
 
 function sellStock(stockId, qty) {
-  if (player.holdings[stockId] < qty) {
-    alert('보유 수량 부족!');
-    return;
-  }
-
   const stock = findStock(stockId);
+  if (player.holdings[stockId] < qty) { alert('보유한 수량보다 많이 팔 수 없어요! 🥲'); return; }
   player.holdings[stockId] -= qty;
   player.cash += stock.price * qty;
   player.everSold = true;
-  player.tradeCount += 1;
   commit();
 }
 
 function handleMarketClick(event) {
-  const nameSection = event.target.closest('.item-name-section');
-  if (nameSection) {
-    const item = nameSection.closest('.market-item');
-    selectedStockId = item.dataset.stockId;
-    updateChartDisplay();
-    renderMarket();
-    return;
-  }
-
   const button = event.target.closest('button[data-action]');
   if (!button) return;
-
   const stockId = button.dataset.id;
   const qtyInput = document.getElementById(`qty-${stockId}`);
   const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
-
-  if (button.dataset.action === 'buy') {
-    buyStock(stockId, qty);
-  } else {
-    sellStock(stockId, qty);
-  }
+  if (button.dataset.action === 'buy') buyStock(stockId, qty);
+  else sellStock(stockId, qty);
 }
 
 /* =====================================================================
-   정보상 & 상점
+   ⑧ 어둠의 정보상
 ===================================================================== */
-
 function buyHint() {
   if (hintPurchasedToday) return;
-  if (player.cash < HINT_COST) {
-    alert('현금 부족!');
-    return;
-  }
-
+  if (player.cash < HINT_COST) { alert('정보상에게 낼 돈이 부족해요! 🥲'); return; }
   player.cash -= HINT_COST;
   hintPurchasedToday = true;
   commit();
 }
 
-function buyShopItem(itemId) {
+/* =====================================================================
+   ⑨ 사치품 상점
+===================================================================== */
+function buyItem(itemId) {
+  if (player.ownedItems.includes(itemId)) return;
   const item = SHOP_ITEMS.find((i) => i.id === itemId);
-  if (player.ownedItems.includes(itemId) || player.cash < item.price) {
-    alert('구매 불가!');
-    return;
-  }
-
+  if (player.cash < item.price) { alert('돈이 부족해요! 🥲'); return; }
   player.cash -= item.price;
   player.ownedItems.push(itemId);
   commit();
 }
 
-/* =====================================================================
-   업적 & 토스트
-===================================================================== */
+function handleShopClick(event) {
+  const button = event.target.closest('button[data-item]');
+  if (!button) return;
+  buyItem(button.dataset.item);
+}
 
+/* =====================================================================
+   ⑩ 업적 & 토스트
+===================================================================== */
 function getAchievementState() {
   return {
+    cash: player.cash,
     totalAssets: computeTotalAssets(),
+    durianPrice: findStock('durian-games').price,
     ownedItemsCount: player.ownedItems.length,
     dayCount,
     everBought: player.everBought,
     everSold: player.everSold,
-    tradeCount: player.tradeCount,
   };
 }
 
@@ -708,7 +499,7 @@ function checkAchievements() {
     if (player.unlockedAchievements.includes(ach.id)) return;
     if (ach.check(state)) {
       player.unlockedAchievements.push(ach.id);
-      queueToast(`🏆 업적 달성! <strong>${ach.name}</strong>`);
+      queueToast(`🏆 업적 달성! <strong>${ach.name}</strong> — ${ach.desc}`);
     }
   });
 }
@@ -722,59 +513,90 @@ function queueToast(html) {
 }
 
 function playNextToast() {
-  if (toastQueue.length === 0) {
-    toastBusy = false;
-    return;
-  }
+  if (toastQueue.length === 0) { toastBusy = false; return; }
   toastBusy = true;
-
   const html = toastQueue.shift();
   dom.toast.innerHTML = html;
   dom.toast.classList.add('visible');
-
   setTimeout(() => {
     dom.toast.classList.remove('visible');
     setTimeout(playNextToast, 400);
-  }, 3000);
+  }, 3200);
 }
 
 /* =====================================================================
-   뉴스 모달
+   ⑪ 차트 (Chart.js)
 ===================================================================== */
+function initChart() {
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  priceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: stocks.map((stock) => ({
+        label: stock.name,
+        data: [],
+        borderColor: stock.chartColor,
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        pointRadius: 0,
+        borderWidth: 2,
+      })),
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      scales: {
+        x: { ticks: { color: '#8b8f9e', maxRotation: 0 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#8b8f9e', callback: (v) => `${v}%` }, grid: { color: 'rgba(255,255,255,0.04)' } },
+      },
+      plugins: { legend: { labels: { color: '#c7c9d1', boxWidth: 12, font: { size: 10 } } } },
+    },
+  });
+}
 
+function resetChart() {
+  priceChart.data.labels = [];
+  priceChart.data.datasets.forEach((ds) => { ds.data = []; });
+  priceChart.update();
+}
+
+function updateChart() {
+  priceChart.data.labels.push(`${tickIndexToday * 10}s`);
+
+  stocks.forEach((stock, i) => {
+    const changePercent = ((stock.price / stock.dayStartPrice) - 1) * 100;
+    priceChart.data.datasets[i].data.push(changePercent.toFixed(2));
+  });
+
+  if (priceChart.data.labels.length > TICKS_PER_DAY) {
+    priceChart.data.labels.shift();
+    priceChart.data.datasets.forEach((ds) => ds.data.shift());
+  }
+
+  priceChart.update();
+}
+
+/* =====================================================================
+   ⑫ 오늘의 뉴스 모달
+===================================================================== */
 function showNewsModal(news) {
-  dom.newsModalText.textContent = news.text;
-  dom.newsModal.classList.add('visible');
+  dom.modalDayLabel.textContent = `DAY ${dayCount}`;
+  dom.modalNewsText.textContent = news.text;
+  dom.modalOverlay.classList.add('visible');
 }
 
-function closeNewsModal() {
-  dom.newsModal.classList.remove('visible');
-}
-
-/* =====================================================================
-   부도 관리
-===================================================================== */
-
-function checkBankruptcy(stock) {
-  if (stock.price <= BANKRUPT_THRESHOLD && !bankruptcyWarnings[stock.id]) {
-    bankruptcyWarnings[stock.id] = true;
-    queueToast(`⚠️ ${stock.emoji} ${stock.name} 부도 경고!`);
-  }
-
-  if (stock.price <= 0 && !stock.delisted) {
-    stock.delisted = true;
-    delete player.holdings[stock.id];
-    queueToast(`💀 ${stock.emoji} ${stock.name} 상장폐지!`);
-  }
+function hideNewsModal() {
+  dom.modalOverlay.classList.remove('visible');
 }
 
 /* =====================================================================
-   시세 틱 & 일일 정산
+   ⑬ 하루 진행 & 10초 시세 틱 (+ 밸런스 패치)
 ===================================================================== */
-
 function applyTodaysNewsTrend(news) {
   stocks.forEach((stock) => {
-    if (!stock.delisted && newsAffectsStock(news, stock)) {
+    if (newsAffectsStock(news, stock)) {
       const dayTotalTarget = randomFloat(news.changeRange[0], news.changeRange[1]);
       stock.todayTickDrift = dayTotalTarget / TICKS_PER_DAY;
     } else {
@@ -787,26 +609,24 @@ function runPriceTick() {
   tickIndexToday += 1;
 
   stocks.forEach((stock) => {
-    if (stock.delisted) return;
-
     stock.prevPrice = stock.price;
 
     const noise = randomFloat(-stock.tickVolatility, stock.tickVolatility);
     const baselineDrift = stock.dailyDrift / TICKS_PER_DAY;
-    const changeRatio = noise + baselineDrift + stock.todayTickDrift;
+    let changeRatio = noise + baselineDrift + stock.todayTickDrift;
 
-    let newPrice = Math.max(1, Math.round(stock.price * (1 + changeRatio)));
+    changeRatio = Math.max(-stock.tickCap, Math.min(stock.tickCap, changeRatio));
 
-    const maxPrice = Math.round(stock.dayStartPrice * 1.30);
-    const minPrice = Math.round(stock.dayStartPrice * 0.70);
-    newPrice = Math.max(minPrice, Math.min(maxPrice, newPrice));
+    const rawPrice = stock.price * (1 + changeRatio);
 
-    stock.price = newPrice;
-    stock.priceHistory.push(newPrice);
+    const upperLimit = stock.dayStartPrice * (1 + DAY_PRICE_LIMIT);
+    const lowerLimit = stock.dayStartPrice * (1 - DAY_PRICE_LIMIT);
+    const clampedPrice = Math.min(upperLimit, Math.max(lowerLimit, rawPrice));
 
-    checkBankruptcy(stock);
+    stock.price = Math.max(1, Math.round(clampedPrice));
   });
 
+  updateChart();
   commit();
 }
 
@@ -815,62 +635,45 @@ function updateTimerDisplay(remainingMs) {
   const mm = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
   const ss = String(totalSeconds % 60).padStart(2, '0');
   dom.timerText.textContent = `${mm}:${ss}`;
-
   const percent = Math.max(0, Math.min(100, (remainingMs / DAY_DURATION_MS) * 100));
   dom.timerFill.style.width = `${percent}%`;
 }
 
 function resolveDayEnd() {
-  // 배당금
-  stocks.forEach((stock) => {
-    if (!stock.delisted && stock.tags.includes('dividend')) {
-      const qty = player.holdings[stock.id];
-      if (qty > 0) {
-        const dividend = Math.round(qty * stock.price * DIVIDEND_RATE);
-        player.cash += dividend;
-        queueToast(`${stock.emoji} 배당금 ${formatWon(dividend)}`);
-      }
-    }
-  });
+  // 과일 테마에 맞춘 배당금 이벤트 (바나나 유통)
+  const dividendStock = findStock('banana-dist');
+  const dividendQty = player.holdings['banana-dist'];
+  if (dividendQty > 0) {
+    const dividend = Math.round(dividendQty * dividendStock.price * DIVIDEND_RATE);
+    player.cash += dividend;
+    queueToast(`🍌 바나나 유통 배당금 ${formatWon(dividend)} 지급!`);
+  }
 
-  // 다음 날 뉴스
   todaysNews = tomorrowsNews;
   tomorrowsNews = pickRandomNews();
   applyTodaysNewsTrend(todaysNews);
 
-  // 초기화
-  stocks.forEach((s) => {
-    if (!s.delisted) {
-      s.dayStartPrice = s.price;
-      s.priceHistory = [s.price];
-    }
-  });
-
-  selectedStockId = null;
+  stocks.forEach((s) => { s.dayStartPrice = s.price; });
+  resetChart();
   tickIndexToday = 0;
   lastPriceTickElapsed = 0;
-  bankruptcyWarnings = {};
 
   dayCount += 1;
   hintPurchasedToday = false;
   dayEndAt = Date.now() + DAY_DURATION_MS;
 
-  showNewsModal(todaysNews);
   commit();
+  showNewsModal(todaysNews);
 }
 
 function tickClock() {
   const remaining = dayEndAt - Date.now();
   updateTimerDisplay(Math.max(0, remaining));
 
-  if (remaining <= 0) {
-    resolveDayEnd();
-    return;
-  }
+  if (remaining <= 0) { resolveDayEnd(); return; }
 
   const elapsed = DAY_DURATION_MS - remaining;
   const tickSlot = Math.floor(elapsed / PRICE_TICK_MS);
-
   if (tickSlot !== lastPriceTickElapsed) {
     lastPriceTickElapsed = tickSlot;
     runPriceTick();
@@ -878,66 +681,74 @@ function tickClock() {
 }
 
 /* =====================================================================
-   초기화
+   ⑭ 디버그: 주가 조작 (치트 기능)
 ===================================================================== */
+const DEBUG_MIN_PRICE = 100; 
 
+function manipulateStock(stockId, mode, customValue) {
+  const stock = findStock(stockId);
+
+  stock.prevPrice = stock.price;
+
+  let target;
+  if (mode === 'pump') target = stock.price * 1.5;
+  else if (mode === 'dump') target = stock.price * 0.5;
+  else target = customValue;
+
+  stock.price = Math.max(DEBUG_MIN_PRICE, Math.round(target));
+  stock.dayStartPrice = stock.price;
+
+  tickIndexToday += 1;
+  updateChart();
+  commit();
+}
+
+function handleDebugClick(event) {
+  const button = event.target.closest('button[data-debug-action]');
+  if (!button) return;
+
+  const stockId = button.dataset.id;
+  const action = button.dataset.debugAction;
+
+  if (action === 'pump') {
+    manipulateStock(stockId, 'pump');
+  } else if (action === 'dump') {
+    manipulateStock(stockId, 'dump');
+  } else if (action === 'set') {
+    const input = document.getElementById(`debugPrice-${stockId}`);
+    const value = parseInt(input.value, 10);
+    if (!value || value <= 0) { alert('올바른 금액을 입력해주세요!'); return; }
+    manipulateStock(stockId, 'set', value);
+    input.value = '';
+  }
+}
+
+/* =====================================================================
+   ⑮ 초기화
+===================================================================== */
 function init() {
   initChart();
 
   const hasSave = loadGame();
   if (!hasSave) {
     applyTodaysNewsTrend(todaysNews);
-    stocks.forEach((s) => {
-      s.dayStartPrice = s.price;
-      s.priceHistory = [s.price];
-    });
+    stocks.forEach((s) => { s.dayStartPrice = s.price; });
     saveGame();
+  }
+
+  renderAll();
+
+  if (!hasSave) {
     showNewsModal(todaysNews);
   }
 
-  renderMarket();
-  renderAssetInfo();
-  updatePhoneScreen();
+  dom.stockTableBody.addEventListener('click', handleMarketClick);
+  dom.shopGrid.addEventListener('click', handleShopClick);
+  dom.hintBtn.addEventListener('click', buyHint);
+  dom.resetBtn.addEventListener('click', resetGame);
+  dom.modalConfirmBtn.addEventListener('click', hideNewsModal);
+  dom.debugList.addEventListener('click', handleDebugClick);
 
-  // 메인 화면 이벤트
-  dom.marketList.addEventListener('click', handleMarketClick);
-  dom.phoneOpenBtn.addEventListener('click', openPhone);
-  dom.phoneCloseBtn.addEventListener('click', closePhone);
-  dom.newsCloseBtn.addEventListener('click', closeNewsModal);
-
-  // 스마트폰 앱 아이콘
-  dom.phoneHome.addEventListener('click', (e) => {
-    const icon = e.target.closest('.phone-app-icon');
-    if (icon) goToPhoneApp(icon.dataset.app);
-  });
-
-  // 뒤로 가기 버튼
-  document.querySelectorAll('.app-back-btn').forEach(btn => {
-    btn.addEventListener('click', goToPhoneHome);
-  });
-
-  // 정보상 & 상점
-  dom.phoneBuyHintBtn.addEventListener('click', buyHint);
-  dom.phoneResetBtn.addEventListener('click', resetGame);
-
-  dom.phoneShopGrid.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-item]');
-    if (btn) buyShopItem(btn.dataset.item);
-  });
-
-  // 뉴스 모달 배경 클릭
-  dom.newsModal.addEventListener('click', (e) => {
-    if (e.target === dom.newsModal) closeNewsModal();
-  });
-
-  dom.phoneModal.addEventListener('click', (e) => {
-    if (e.target === dom.phoneModal) closePhone();
-  });
-
-  // 매분 폰 시간 업데이트
-  setInterval(updatePhoneTime, 10000);
-
-  // 메인 게임 루프
   setInterval(tickClock, 1000);
 }
 
