@@ -1,5 +1,5 @@
 /* =====================================================================
-   프리미엄 모의투자 HTS (과일 테마 버전) - script.js
+   프리미엄 모의투자 HTS (과일 테마 & 고가 밸런스 버전) - script.js
    -----------------------------------------------------------------
    전체 흐름:
    ① 종목/뉴스/업적/상점 데이터 → ② 게임 상태 변수 → ③ 화면 요소 참조
@@ -10,42 +10,42 @@
 ===================================================================== */
 
 /* =====================================================================
-   ① 종목 목록 (과일 테마 6개 종목으로 압축)
+   ① 종목 목록 (기본 주가 10배 상승)
 ===================================================================== */
 const stocks = [
   { id: 'apple-farm', ticker: 'APL', emoji: '🍎', name: '사과 농장',
     industry: '농업', category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#ff4d4d',
-    price: 1200, prevPrice: 1200, dayStartPrice: 1200,
+    price: 12000, prevPrice: 12000, dayStartPrice: 12000,
     tickVolatility: 0.004, tickCap: 0.02, dailyDrift: 0.005, todayTickDrift: 0, tags: ['farm'] },
 
   { id: 'banana-dist', ticker: 'BND', emoji: '🍌', name: '바나나 유통',
     industry: '유통', category: '우량주', badgeClass: 'badge-blue-chip', chartColor: '#ffd700',
-    price: 1000, prevPrice: 1000, dayStartPrice: 1000,
+    price: 10000, prevPrice: 10000, dayStartPrice: 10000,
     tickVolatility: 0.005, tickCap: 0.02, dailyDrift: 0.003, todayTickDrift: 0, tags: ['dist'] },
 
   { id: 'grape-pharma', ticker: 'GRP', emoji: '🍇', name: '포도당 제약',
     industry: '제약', category: '가치주', badgeClass: 'badge-value', chartColor: '#7fbf7f',
-    price: 700, prevPrice: 700, dayStartPrice: 700,
+    price: 7000, prevPrice: 7000, dayStartPrice: 7000,
     tickVolatility: 0.013, tickCap: 0.03, dailyDrift: 0, todayTickDrift: 0, tags: ['pharma'] },
 
   { id: 'blueberry-tech', ticker: 'BBT', emoji: '🫐', name: '블루베리 테크',
     industry: 'IT', category: '가치주', badgeClass: 'badge-value', chartColor: '#6fb1e0',
-    price: 800, prevPrice: 800, dayStartPrice: 800,
+    price: 8000, prevPrice: 8000, dayStartPrice: 8000,
     tickVolatility: 0.012, tickCap: 0.03, dailyDrift: 0.002, todayTickDrift: 0, tags: ['tech'] },
 
   { id: 'watermelon-enter', ticker: 'WME', emoji: '🍉', name: '수박 엔터',
     industry: '엔터', category: '테마주', badgeClass: 'badge-theme', chartColor: '#ff8fa3',
-    price: 400, prevPrice: 400, dayStartPrice: 400,
+    price: 4000, prevPrice: 4000, dayStartPrice: 4000,
     tickVolatility: 0.022, tickCap: 0.04, dailyDrift: 0, todayTickDrift: 0, tags: ['entertainment'] },
 
   { id: 'durian-games', ticker: 'DRG', emoji: '🍈', name: '두리안 게임즈',
     industry: '게임', category: '작전주', badgeClass: 'badge-manipulated', chartColor: '#8b8f9e',
-    price: 250, prevPrice: 250, dayStartPrice: 250,
+    price: 2500, prevPrice: 2500, dayStartPrice: 2500,
     tickVolatility: 0.032, tickCap: 0.05, dailyDrift: -0.003, todayTickDrift: 0, tags: ['game'] },
 ];
 
 /* =====================================================================
-   뉴스 이벤트 풀 (과일 테마로 전면 수정)
+   뉴스 이벤트 풀 
 ===================================================================== */
 const NEWS_POOL = [
   { id: 'market-boom', type: 'market', text: '🌍 과일 시장 대풍년, 전 종목 동반 강세',
@@ -85,39 +85,39 @@ const NEWS_POOL = [
 ];
 
 /* =====================================================================
-   업적 & 사치품 상점
+   업적 & 사치품 상점 (경제 규모에 맞춰 목표치 10~100배 상승)
 ===================================================================== */
 const ACHIEVEMENTS = [
   { id: 'first-buy', emoji: '🌱', name: '첫 과일 바구니', desc: '생애 첫 과일 주식을 매수했다', check: (s) => s.everBought },
   { id: 'first-sell', emoji: '💵', name: '첫 수익 실현', desc: '생애 첫 매도를 완료했다', check: (s) => s.everSold },
   { id: 'bankrupt', emoji: '💀', name: '썩은 과일', desc: '현금이 마이너스가 되었다', check: (s) => s.cash < 0 },
-  { id: 'rich-10k', emoji: '👑', name: '과일 재벌', desc: '총자산이 10,000원을 넘었다', check: (s) => s.totalAssets >= 10000 },
-  { id: 'durian-madness', emoji: '🍈', name: '두리안의 기적', desc: '두리안 게임즈 주가가 900원을 넘었다', check: (s) => s.durianPrice >= 900 },
+  { id: 'rich-1m', emoji: '👑', name: '과일 재벌', desc: '총자산이 100만 원을 넘었다', check: (s) => s.totalAssets >= 1000000 },
+  { id: 'durian-madness', emoji: '🍈', name: '두리안의 기적', desc: '두리안 게임즈 주가가 9,000원을 넘었다', check: (s) => s.durianPrice >= 9000 },
   { id: 'luxury-owner', emoji: '💎', name: '플렉스의 시작', desc: '사치품을 하나 이상 구매했다', check: (s) => s.ownedItemsCount >= 1 },
   { id: 'collector', emoji: '🏆', name: '모든 걸 가졌다', desc: '상점의 모든 자산을 구매했다', check: (s) => s.ownedItemsCount >= SHOP_ITEMS_COUNT },
   { id: 'survivor-10', emoji: '📅', name: '베테랑 상인', desc: '10일 동안 과일 시장에서 살아남았다', check: (s) => s.dayCount >= 10 },
 ];
 
 const SHOP_ITEMS = [
-  { id: 'my-car', emoji: '🚗', name: '과일 배달 트럭', price: 200, desc: '배달의 시작, 뿌듯함이 두 배' },
-  { id: 'watch', emoji: '⌚', name: '명품 시계', price: 500, desc: '손목 위의 자산 증명서' },
-  { id: 'sports-car', emoji: '🏎️', name: '스포츠카', price: 1500, desc: '질주 본능을 채워줄 스피드' },
-  { id: 'yacht', emoji: '🛥️', name: '요트', price: 3000, desc: '주말은 바다 위에서' },
-  { id: 'penthouse', emoji: '🏙️', name: '농장 펜트하우스', price: 8000, desc: '과수원 전체가 내려다보이는 집' },
+  { id: 'my-car', emoji: '🚚', name: '과일 배달 트럭', price: 20000, desc: '배달의 시작, 쏠쏠한 추가 수입의 기반' },
+  { id: 'watch', emoji: '⌚', name: '명품 금시계', price: 50000, desc: '손목 위의 자산 증명서' },
+  { id: 'sports-car', emoji: '🏎️', name: '슈퍼카', price: 250000, desc: '가게 문 닫고 드라이브 갈 시간' },
+  { id: 'yacht', emoji: '🛥️', name: '프라이빗 요트', price: 800000, desc: '과일 팔아 산 바다 위의 성' },
+  { id: 'penthouse', emoji: '🏙️', name: '초고층 펜트하우스', price: 3000000, desc: '도시 전체가 내려다보이는 과일왕의 안식처' },
 ];
 const SHOP_ITEMS_COUNT = SHOP_ITEMS.length;
 
 /* =====================================================================
    ② 게임 상태 변수 & 상수
 ===================================================================== */
-const START_CASH = 1000;
+const START_CASH = 15000; // 초기 자본금 상향
 const DAY_DURATION_MS = 3 * 60 * 1000;
 const PRICE_TICK_MS = 10 * 1000;
 const TICKS_PER_DAY = DAY_DURATION_MS / PRICE_TICK_MS;
 const DAY_PRICE_LIMIT = 0.3;
-const HINT_COST = 50;
+const HINT_COST = 500; // 정보 구매 비용 상승
 const DIVIDEND_RATE = 0.01;
-const SAVE_KEY = 'stockSimPremiumSaveV5'; // 충돌 방지를 위해 V5로 올림
+const SAVE_KEY = 'stockSimPremiumSaveV6'; // 데이터 초기화를 위해 V6로 변경
 
 const player = {
   cash: START_CASH,
@@ -394,7 +394,7 @@ function renderDebugPanel() {
       <div class="debug-controls">
         <button class="btn debug-pump-btn" data-debug-action="pump" data-id="${stock.id}">🚀 +50%</button>
         <button class="btn debug-dump-btn" data-debug-action="dump" data-id="${stock.id}">📉 -50%</button>
-        <input type="number" class="qty-input mono debug-input" id="debugPrice-${stock.id}" placeholder="직접입력" min="100">
+        <input type="number" class="qty-input mono debug-input" id="debugPrice-${stock.id}" placeholder="직접입력" min="1000">
         <button class="btn debug-apply-btn" data-debug-action="set" data-id="${stock.id}">적용</button>
       </div>
     </div>
@@ -623,7 +623,7 @@ function runPriceTick() {
     const lowerLimit = stock.dayStartPrice * (1 - DAY_PRICE_LIMIT);
     const clampedPrice = Math.min(upperLimit, Math.max(lowerLimit, rawPrice));
 
-    stock.price = Math.max(1, Math.round(clampedPrice));
+    stock.price = Math.max(100, Math.round(clampedPrice));
   });
 
   updateChart();
@@ -640,7 +640,6 @@ function updateTimerDisplay(remainingMs) {
 }
 
 function resolveDayEnd() {
-  // 과일 테마에 맞춘 배당금 이벤트 (바나나 유통)
   const dividendStock = findStock('banana-dist');
   const dividendQty = player.holdings['banana-dist'];
   if (dividendQty > 0) {
@@ -683,7 +682,7 @@ function tickClock() {
 /* =====================================================================
    ⑭ 디버그: 주가 조작 (치트 기능)
 ===================================================================== */
-const DEBUG_MIN_PRICE = 100; 
+const DEBUG_MIN_PRICE = 1000; // 가격 붕괴를 막기 위한 디버그 최소 하한선도 상향
 
 function manipulateStock(stockId, mode, customValue) {
   const stock = findStock(stockId);
